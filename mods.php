@@ -34,6 +34,15 @@ function mods_civicrm_defer_collection_date(&$collection_date, $creditor_id) {
 }
 
 /**
+ * Implements CiviSEPA hook to adjust transaction message ("Verwendungszweck")
+ */
+function mods_civicrm_modify_txmessage(&$txmessage, $info, $creditor) {
+  $txmessage = CRM_Mods_SepaMandate::generateTxMessage($info, $creditor);
+}
+
+
+
+/**
  * Implements hook_civicrm_config().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_config

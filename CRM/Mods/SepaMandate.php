@@ -28,6 +28,11 @@ class CRM_Mods_SepaMandate {
   /** there are 4 easter related days: -2 (Good Friday), +1 (Easter Monday), +39 (Ascension Day), +50 (Whit Monday) */
   protected static $EASTER_HOLIDAYS = array('-2', '+1', '+39', '+50');
 
+  /** cach for financial types */
+  protected static $FINANCIAL_TYPE_NAMES = NULL;
+
+
+
   /**
    * Check if this a valid day to collect SEPA direct debits
    *
@@ -74,6 +79,32 @@ class CRM_Mods_SepaMandate {
     return TRUE;
   }
 
+  /**
+   * Generate TX message, see https://projekte.systopia.de/redmine/issues/7254
+   *
+   * @param $mandate   array  mandate information
+   * @param $creditor  array  creditor information
+   */
+  public static function generateTxMessage($mandate, $creditor) {
+    if ($mandate['type'] == 'RCUR') {
+      // load recurring contribution
+      $rcontribution = civicrm_api3('ContributionRecur', 'getsingle', array(
+          'id'     => $mandate['entity_id'],
+          'return' => 'financial_type_id,frequency_interval,frequency_unit'));
+      $financial_type = self::getFinancialTypeLabel($rcontribution['financial_type_id']);
+      $payment_frequency = CRM_Utils_SepaOptionGroupTools::getFrequencyText($rcontribution['frequency_interval'], $rcontribution['frequency_unit'], true);
+      return "{$financial_type} {$payment_frequency}. ProVeg sagt vielen Dank.";
+
+    } else {
+      // load contribution
+      $contribution = civicrm_api3('Contribution', 'getsingle', array(
+          'id'     => $mandate['contribution_id'],
+          'return' => 'financial_type_id'));
+      $financial_type = self::getFinancialTypeLabel($contribution['financial_type_id']);
+      return "{$financial_type} - ProVeg sagt vielen Dank.";
+    }
+    return "ProVeg sagt vielen Dank.";
+  }
 
   /**
    * This function will generate custom mandate references:
@@ -138,6 +169,27 @@ class CRM_Mods_SepaMandate {
 
     // if we get here, we ran out of references
     throw new Exception("No more reference available. Change the reference scheme!");
+  }
+
+  /**
+   * Look up a financial type name
+   *
+   * @param $financial_type_id
+   */
+  protected static function getFinancialTypeLabel($financial_type_id) {
+    if (self::$FINANCIAL_TYPE_NAMES === NULL) {
+      $ft_query = civicrm_api3('FinancialType', 'get', array(
+          'option.limit' => 0,
+          'return'       => 'id,name',
+          'sequential'   => 0));
+      self::$FINANCIAL_TYPE_NAMES = $ft_query['values'];
+    }
+    if (isset(self::$FINANCIAL_TYPE_NAMES[$financial_type_id]['name'])) {
+      return self::$FINANCIAL_TYPE_NAMES[$financial_type_id]['name'];
+    } else {
+      // this shouldn't happen
+      return 'Unknown';
+    }
   }
 
 }
