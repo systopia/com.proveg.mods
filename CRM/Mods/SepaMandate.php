@@ -152,24 +152,18 @@ class CRM_Mods_SepaMandate {
       $reference = sprintf('C%07d', $contact_id);
     }
 
-    // find all used references
-    $used_references = array();
+    // find all used references with that prefix
+    $highest_index = 0;
     $query = CRM_Core_DAO::executeQuery("SELECT reference FROM civicrm_sdd_mandate WHERE reference LIKE '{$reference}-%';");
     while ($query->fetch()) {
-      $used_references[] = $query->reference;
-    }
-
-    // now find the first sequence that's not taken
-    for ($n=1; $n < 100; $n++) {
-      $reference_candidate = sprintf("%s-%02d", $reference, $n);
-      if (!in_array($reference_candidate, $used_references)) {
-        $mandate_parameters['reference'] = $reference_candidate;
-        return;
+      if (preg_match("#^{$reference}-(?P<index>[0-9]{2,3})$#", $query->reference, $match)) {
+        $index = (int) $match['index'];
+        if ($index > $highest_index) {
+          $highest_index = $index;
+        }
       }
     }
-
-    // if we get here, we ran out of references
-    throw new Exception("No more reference available. Change the reference scheme!");
+    $mandate_parameters['reference'] = sprintf("%s-%02d", $reference, ($highest_index + 1));
   }
 
   /**
