@@ -93,6 +93,7 @@ class CRM_Mods_SepaMandate {
           'return' => 'financial_type_id,frequency_interval,frequency_unit'));
       $financial_type = self::getFinancialTypeLabel($rcontribution['financial_type_id']);
       $payment_frequency = CRM_Utils_SepaOptionGroupTools::getFrequencyText($rcontribution['frequency_interval'], $rcontribution['frequency_unit'], true);
+      $payment_frequency = preg_replace('/ä/', 'ae', $payment_frequency); // replace Umlaut in 'jährlich'
       return "{$financial_type} {$payment_frequency}. ProVeg sagt vielen Dank.";
 
     } else {
