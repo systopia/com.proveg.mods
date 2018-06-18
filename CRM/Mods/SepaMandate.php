@@ -19,6 +19,62 @@ use CRM_Mods_ExtensionUtil as E;
  */
 class CRM_Mods_SepaMandate {
 
+  /** list of German holidays with a fixed date */
+  protected static $STATIC_HOLIDAYS = array('01-01', '05-01', '10-03', '12-25', '12-26', '12-31');
+
+  /** list of Easter Sunday dates */
+  protected static $EASTER_SUNDAYS = array('2018-04-01', '2019-04-21', '2020-04-12', '2021-04-04', '2022-04-14', '2023-04-09', '2024-03-31', '2025-04-20', '2026-04-05', '2027-03-28');
+
+  /** there are 4 easter related days: -2 (Good Friday), +1 (Easter Monday), +39 (Ascension Day), +50 (Whit Monday) */
+  protected static $EASTER_HOLIDAYS = array('-2', '+1', '+39', '+50');
+
+  /**
+   * Check if this a valid day to collect SEPA direct debits
+   *
+   * @param $date string date
+   * @return boolean iff this is a valid collection date
+   */
+  public static function is_collection_day($collection_date) {
+    // check for weekends:
+    $day_of_week = date('N', strtotime($collection_date));
+    if ($day_of_week > 5) {
+      return FALSE;
+    }
+
+    // check for (German) static holidays
+    $date = substr($collection_date, 5);
+    if (in_array($date, self::$STATIC_HOLIDAYS)) {
+      return FALSE;
+    }
+
+    // check for the non-static holidays (easter-based)
+    // first: find easter sunday
+    $year = substr($collection_date, 0, 4);
+    $easter_sunday = NULL;
+    foreach (self::$EASTER_SUNDAYS as $easter_sunday_candidate) {
+      if ($year == substr($easter_sunday_candidate, 0, 4)) {
+        $easter_sunday = $easter_sunday_candidate;
+        break;
+      }
+    }
+    if ($easter_sunday) {
+      // check the holidays related to easter
+      foreach (self::$EASTER_HOLIDAYS as $holiday_offset) {
+        $holiday = strtotime("{$easter_sunday} {$holiday_offset} days");
+        if ($collection_date == date('Y-m-d', $holiday)) {
+          // this is one of the easter-releated holidays
+          return FALSE;
+        }
+      }
+    } else {
+      CRM_Core_Session::setStatus(E::ts("Easter sunday not known for year %1. Please contact SYSTOPIA.", [1 => $year]), E::ts('Bank holiday list outdated'), 'warning');
+    }
+
+    // it all checks out, we can collect on this date
+    return TRUE;
+  }
+
+
   /**
    * This function will generate custom mandate references:
    *

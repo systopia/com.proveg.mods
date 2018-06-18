@@ -29,3 +29,18 @@ function civicrm_api3_korrekturen_pv7245($params) {
 
   return civicrm_api3_create_success($messages);
 }
+
+
+/**
+ * Test Bankfeiertage
+ * @see https://projekte.systopia.de/redmine/issues/7246
+ */
+function civicrm_api3_korrekturen_pv7246($params) {
+  for ($i = 0; $i < 370; $i++) {
+    $collection_date = date('Y-m-d', strtotime("2018-01-01 +{$i} days"));
+    if (!CRM_Mods_SepaMandate::is_collection_day($collection_date)) {
+      CRM_Core_Error::debug_log_message("HOLIDAY: {$collection_date}");
+    }
+  }
+  return civicrm_api3_create_success($messages);
+}

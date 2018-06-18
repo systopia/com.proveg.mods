@@ -25,6 +25,15 @@ function mods_civicrm_create_mandate(&$mandate_parameters) {
 }
 
 /**
+ * Implements CiviSEPA hook to adjust collection date
+ */
+function mods_civicrm_defer_collection_date(&$collection_date, $creditor_id) {
+  while (!CRM_Mods_SepaMandate::is_collection_day($collection_date)) {
+    $collection_date = date('Y-m-d', strtotime("+1 day", strtotime($collection_date)));
+  }
+}
+
+/**
  * Implements hook_civicrm_config().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_config
