@@ -198,7 +198,7 @@ function mods_civicrm_navigationMenu(&$menu) {
   _mods_civix_insert_navigation_menu($menu, 'my_contact', array(
       'label' => E::ts('My Contact in CiviCRM'),
       'name' => 'my_contact_civicrm',
-      'url' => 'civicrm/contact/view',
+      'url' => 'civicrm/me',
       'icon' => 'Individual-icon icon crm-icon',
       'permission' => 'access CiviCRM',
       'operator' => 'OR',
@@ -208,7 +208,7 @@ function mods_civicrm_navigationMenu(&$menu) {
       'label' => E::ts('My Contact in Drupal'),
       'name' => 'my_contact_civicrm',
       'url' => 'user',
-      'icon' => 'Individual-icon icon crm-icon',
+      'icon' => 'Group-icon icon crm-icon',
       'permission' => 'access CiviCRM',
       'operator' => 'OR',
       'separator' => 0,
