@@ -215,3 +215,15 @@ function mods_civicrm_navigationMenu(&$menu) {
   ));
   _mods_civix_navigationMenu($menu);
 }
+
+/**
+ * Implements hook_civicrm_buildForm().
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_buildForm
+ */
+function mods_civicrm_buildForm($formName, &$form) {
+  if ($formName == 'CRM_Contact_Form_Merge') {
+    // see PV-7858
+    CRM_Core_Resources::singleton()->addScriptFile('com.proveg.mods', 'js/merge_mods.js');
+  }
+}
