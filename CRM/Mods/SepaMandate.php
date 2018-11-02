@@ -144,11 +144,14 @@ class CRM_Mods_SepaMandate {
       if (class_exists('CRM_Membership_NumberLogic')) {
         $membership_numbers = CRM_Membership_NumberLogic::getCurrentMembershipNumbers(array($contact_id));
         $reference = CRM_Utils_Array::value($contact_id, $membership_numbers, NULL);
+        if ($reference) {
+          $reference = trim($reference);
+        }
       }
     }
 
     // if no reference found use contact ID
-    if ($reference === NULL) {
+    if (empty($reference)) {
       $reference = sprintf('C%07d', $contact_id);
     }
 
