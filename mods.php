@@ -224,3 +224,12 @@ function mods_civicrm_buildForm($formName, &$form) {
     CRM_Core_Resources::singleton()->addScriptFile('com.proveg.mods', 'js/merge_mods.js');
   }
 }
+
+/**
+ * Implements mods_civicrm_gdprx_postConsent().
+ *
+ * @see https://github.com/systopia/de.systopia.gdprx/issues/9
+ */
+function mods_civicrm_gdprx_postConsent($mode, $contact_id, $record_id, $data) {
+  CRM_Mods_Gdpr::updatePrivacySettings($contact_id);
+}
