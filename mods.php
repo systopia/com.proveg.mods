@@ -233,3 +233,13 @@ function mods_civicrm_buildForm($formName, &$form) {
 function mods_civicrm_gdprx_postConsent($mode, $contact_id, $record_id, $data) {
   CRM_Mods_Gdpr::updatePrivacySettings($contact_id);
 }
+
+/**
+ * Implements hook_civicrm_apiWrappers
+ */
+function mods_civicrm_apiWrappers(&$wrappers, $apiRequest) {
+  if ($apiRequest['entity'] == 'SepaMandate'
+      && in_array($apiRequest['action'], ['create', 'createfull'])) {
+    $wrappers[] = new CRM_Mods_InternationalMandateWrapper();
+  }
+}
