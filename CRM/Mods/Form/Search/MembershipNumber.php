@@ -59,10 +59,12 @@ class CRM_Mods_Form_Search_MembershipNumber extends CRM_Contact_Form_Search_Cust
   function &columns() {
     // return by reference
     $columns = array(
-      E::ts('Membership Number') => 'reference',
-      E::ts('Name') => 'sort_name',
-//      E::ts('Contact Id') => 'contact_id',
-      E::ts('Contact Type') => 'contact_type',
+        E::ts('Membership Number') => 'reference',
+        E::ts('Membership ID')     => 'membership_id',
+        E::ts('Membership Status') => 'status',
+        E::ts('Name')              => 'sort_name',
+        //      E::ts('Contact Id') => 'contact_id',
+        E::ts('Contact Type')      => 'contact_type',
     );
     return $columns;
   }
@@ -89,10 +91,12 @@ class CRM_Mods_Form_Search_MembershipNumber extends CRM_Contact_Form_Search_Cust
    */
   function select() {
     return "
-      contact_a.id           as contact_id,
-      contact_a.contact_type as contact_type,
-      contact_a.sort_name    as sort_name,
-      info.reference         as reference
+      contact_a.id                     as contact_id,
+      CONCAT('[', membership.id, ']')  as membership_id,
+      status.name                      as status,
+      contact_a.contact_type           as contact_type,
+      contact_a.sort_name              as sort_name,
+      info.reference                   as reference
     ";
   }
 
@@ -105,6 +109,7 @@ class CRM_Mods_Form_Search_MembershipNumber extends CRM_Contact_Form_Search_Cust
     return "
       FROM      civicrm_contact contact_a
       LEFT JOIN civicrm_membership membership      ON membership.contact_id = contact_a.id
+      LEFT JOIN civicrm_membership_status status   ON status.id = membership.status_id
       LEFT JOIN civicrm_value_membership_info info ON info.entity_id = membership.id
     ";
   }
