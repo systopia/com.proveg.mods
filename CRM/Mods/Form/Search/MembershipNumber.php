@@ -59,10 +59,10 @@ class CRM_Mods_Form_Search_MembershipNumber extends CRM_Contact_Form_Search_Cust
   function &columns() {
     // return by reference
     $columns = array(
-        E::ts('Membership Number') => 'reference',
-        E::ts('Membership ID')     => 'membership_id',
-        E::ts('Membership Status') => 'status',
         E::ts('Name')              => 'sort_name',
+        E::ts('Membership Number') => 'reference',
+        E::ts('Membership Status') => 'status',
+        E::ts('Membership ID')     => 'membership_id',
         //      E::ts('Contact Id') => 'contact_id',
         E::ts('Contact Type')      => 'contact_type',
     );
