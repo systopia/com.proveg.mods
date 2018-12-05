@@ -146,6 +146,11 @@ class CRM_Mods_SepaMandate {
         $reference = CRM_Utils_Array::value($contact_id, $membership_numbers, NULL);
         if ($reference) {
           $reference = trim($reference);
+          if (!preg_match("#^([A-Z])?[0-9]{2,7}(-[0-9]{2})?$#", $reference)) {
+            // reference does not comply with the membership number pattern,
+            //  probably a TxMxxxx number, that we don't want to use (see PV-8323)
+            $reference = NULL;
+          }
         }
       }
     }
