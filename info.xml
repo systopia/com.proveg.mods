@@ -14,9 +14,9 @@
     <url desc="Support">https://github.com/systopia/com.proveg.mods/issues</url>
     <url desc="Licensing">http://www.gnu.org/licenses/agpl-3.0.html</url>
   </urls>
-  <releaseDate>2019-02-05</releaseDate>
-  <version>1.6.1</version>
-  <develStage>stable</develStage>
+  <releaseDate></releaseDate>
+  <version>1.7.dev</version>
+  <develStage>dev</develStage>
   <compatibility>
     <ver>5</ver>
   </compatibility>
