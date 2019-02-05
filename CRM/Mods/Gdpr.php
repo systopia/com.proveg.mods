@@ -55,10 +55,10 @@ class CRM_Mods_Gdpr {
         MAX(phone.date)  AS phone,
         MAX(newsl.date)  AS newsl
       FROM civicrm_contact contact
-      LEFT JOIN civicrm_value_gdpr_consent postal ON postal.entity_id = contact.id AND postal.category = 22 AND postal.type IN (3)
-      LEFT JOIN civicrm_value_gdpr_consent email  ON email.entity_id  = contact.id AND email.category  = 20 AND email.type  IN (3)
-      LEFT JOIN civicrm_value_gdpr_consent phone  ON phone.entity_id  = contact.id AND phone.category  = 21 AND phone.type  IN (3)
-      LEFT JOIN civicrm_value_gdpr_consent newsl  ON newsl.entity_id  = contact.id AND newsl.category  = 23 AND newsl.type  IN (3)
+      LEFT JOIN civicrm_value_gdpr_consent postal ON postal.entity_id = contact.id AND postal.category = 22 AND postal.type IN (3,6)
+      LEFT JOIN civicrm_value_gdpr_consent email  ON email.entity_id  = contact.id AND email.category  = 20 AND email.type  IN (3,6)
+      LEFT JOIN civicrm_value_gdpr_consent phone  ON phone.entity_id  = contact.id AND phone.category  = 21 AND phone.type  IN (3,6)
+      LEFT JOIN civicrm_value_gdpr_consent newsl  ON newsl.entity_id  = contact.id AND newsl.category  = 23 AND newsl.type  IN (3,6)
       WHERE contact.id = {$contact_id}");
     $last_opt_out->fetch();
 
