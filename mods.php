@@ -16,6 +16,16 @@ require_once 'mods.civix.php';
 use CRM_Mods_ExtensionUtil as E;
 
 /**
+ * Implements emailProcessor hook
+ *
+ * @see PV-8843
+ * @see https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_emailProcessorContact/
+ */
+function mods_civicrm_emailProcessorContact( $email, $contactID, &$result ) {
+  CRM_Mods_Emailprocessor::lookupContact($email, $contactID, $result);
+}
+
+/**
  * Implements CiviSEPA hook
  */
 function mods_civicrm_create_mandate(&$mandate_parameters) {
