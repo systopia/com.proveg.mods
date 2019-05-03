@@ -50,12 +50,12 @@ function mods_civicrm_modify_txmessage(&$txmessage, $info, $creditor) {
   $txmessage = CRM_Mods_SepaMandate::generateTxMessage($info, $creditor);
 }
 
-/**
- * Implements CiviSCRM hook to inject JS
- */
-function mods_civicrm_pageRun(&$page) {
-  $pageName = $page->getVar('_name');
-}
+///**
+// * Implements CiviSCRM hook to inject JS
+// */
+//function mods_civicrm_pageRun(&$page) {
+//  $pageName = $page->getVar('_name');
+//}
 
 /**
  * Implements hook_civicrm_config().
