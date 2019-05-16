@@ -253,3 +253,41 @@ function mods_civicrm_apiWrappers(&$wrappers, $apiRequest) {
     $wrappers[] = new CRM_Mods_InternationalMandateWrapper();
   }
 }
+
+/**
+ * Implements hook_civicrm_pre
+ */
+function mods_civicrm_pre($op, $objectName, $id, &$params) {
+  $CUSTOM_FIELD_ID = 102; // TODO: dynamic?
+  if ($op == 'create' && $objectName == 'Membership') {
+    try {
+      // somebody is creating a new membership
+
+      if (!empty($params['custom'][$CUSTOM_FIELD_ID][-1]['value'])) {
+        // this field is already set by the user...
+        return;
+      }
+
+      // field is empty -> calculate value
+      $field_list = ['formal_title','first_name','last_name'];
+      $contact = civicrm_api3('Contact', 'getsingle', [
+          'id'     => $params['contact_id'],
+          'return' => implode(',', $field_list) . ',contact_type,display_name']);
+      $pieces = [];
+      if ($contact['contact_type'] == 'Individual') {
+        foreach ($field_list as $field) {
+          if (!empty($contact[$field])) {
+            $pieces[] = $contact[$field];
+          }
+        }
+      } else {
+        $pieces[] = $contact['display_name'];
+      }
+      $params['custom'][$CUSTOM_FIELD_ID][-1]['value'] = trim(implode(' ', $pieces));
+
+    } catch (Exception $ex) {
+      // something went wrong
+      CRM_Core_Error::debug_log_message("mods: Error while setting ProVeg Card Title: " . $ex->getMessage());
+    }
+  }
+}
