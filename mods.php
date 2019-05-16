@@ -258,7 +258,7 @@ function mods_civicrm_apiWrappers(&$wrappers, $apiRequest) {
  * Implements hook_civicrm_pre
  */
 function mods_civicrm_pre($op, $objectName, $id, &$params) {
-  $CUSTOM_FIELD_ID = 96; // LIVE: 102; // TODO: adjust?
+  $CUSTOM_FIELD_ID = 136; //96; // LIVE: 102; // TODO: adjust?
   if ($op == 'create' && $objectName == 'Membership') {
     try {
       // somebody is creating a new membership
@@ -272,12 +272,16 @@ function mods_civicrm_pre($op, $objectName, $id, &$params) {
       $field_list = ['formal_title','first_name','last_name'];
       $contact = civicrm_api3('Contact', 'getsingle', [
           'id'     => $params['contact_id'],
-          'return' => implode(',', $field_list)]);
+          'return' => implode(',', $field_list) . ',contact_type,display_name']);
       $pieces = [];
-      foreach ($field_list as $field) {
-        if (!empty($contact[$field])) {
-          $pieces[] = $contact[$field];
+      if ($contact['contact_type'] == 'Individual') {
+        foreach ($field_list as $field) {
+          if (!empty($contact[$field])) {
+            $pieces[] = $contact[$field];
+          }
         }
+      } else {
+        $pieces[] = $contact['display_name'];
       }
       $params['custom'][$CUSTOM_FIELD_ID][-1]['value'] = trim(implode(' ', $pieces));
 
