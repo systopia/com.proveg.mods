@@ -258,7 +258,7 @@ function mods_civicrm_apiWrappers(&$wrappers, $apiRequest) {
  * Implements hook_civicrm_pre
  */
 function mods_civicrm_pre($op, $objectName, $id, &$params) {
-  $CUSTOM_FIELD_ID = 136; //96; // LIVE: 102; // TODO: adjust?
+  $CUSTOM_FIELD_ID = 96; // LIVE: 102; // TODO: adjust?
   if ($op == 'create' && $objectName == 'Membership') {
     try {
       // somebody is creating a new membership
