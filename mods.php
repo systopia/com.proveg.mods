@@ -198,6 +198,7 @@ function mods_civicrm_navigationMenu(&$menu) {
     'label' => E::ts('Me'),
     'name' => 'my_contact',
     'url' => '',
+    'icon' => 'fa fa-user-circle',
     'permission' => 'access CiviCRM',
     'operator' => 'OR',
     'separator' => 0,
@@ -206,20 +207,28 @@ function mods_civicrm_navigationMenu(&$menu) {
       'label' => E::ts('My Contact in CiviCRM'),
       'name' => 'my_contact_civicrm',
       'url' => 'civicrm/me',
-      'icon' => 'Individual-icon icon crm-icon',
       'permission' => 'access CiviCRM',
       'operator' => 'OR',
       'separator' => 0,
   ));
   _mods_civix_insert_navigation_menu($menu, 'my_contact', array(
       'label' => E::ts('My Contact in Drupal'),
-      'name' => 'my_contact_civicrm',
+      'name' => 'my_contact_drupal',
       'url' => 'user',
-      'icon' => 'Group-icon icon crm-icon',
       'permission' => 'access CiviCRM',
       'operator' => 'OR',
       'separator' => 0,
   ));
+  if (function_exists('statustracker_civicrm_config')) {
+    _mods_civix_insert_navigation_menu($menu, 'my_contact', array(
+        'label' => E::ts('My Processes'),
+        'name' => 'my_processes',
+        'url' => 'civicrm/statustracker/dashboard',
+        'permission' => 'access CiviCRM',
+        'operator' => 'OR',
+        'separator' => 0,
+    ));
+  }
   _mods_civix_navigationMenu($menu);
 }
 
