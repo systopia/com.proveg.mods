@@ -64,6 +64,9 @@ function mods_civicrm_modify_txmessage(&$txmessage, $info, $creditor) {
  */
 function mods_civicrm_config(&$config) {
   _mods_civix_civicrm_config($config);
+
+  require_once 'CRM/Xdedupe/ProVeg.php';
+  \Civi::dispatcher()->addSubscriber(new CRM_Xdedupe_ProVeg());
 }
 
 /**
