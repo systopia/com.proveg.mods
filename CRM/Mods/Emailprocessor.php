@@ -19,6 +19,8 @@ use CRM_Mods_ExtensionUtil as E;
  */
 class CRM_Mods_Emailprocessor {
 
+  protected static $last_emails = [];
+
   /**
    * Implements emailProcessor hook
    *
@@ -26,6 +28,7 @@ class CRM_Mods_Emailprocessor {
    * @see https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_emailProcessor/
    */
   public static function lookupContact($email, $contactID, &$result) {
+    self::$last_emails[] = $email;
     if (!empty($email)) {
       // find all such emails
       $email_query = civicrm_api3('Email', 'get', [
@@ -85,6 +88,49 @@ class CRM_Mods_Emailprocessor {
             'action'    => CRM_Utils_Mail_Incoming::EMAILPROCESSOR_OVERRIDE,
         ];
         return;
+      }
+    }
+  }
+
+  /**
+   * Add all contacts as targets to the Inbound E-Mail activity
+   *
+   * @param $activity_params array activity create parameters
+   */
+  public static function extendTargetContacts(&$activity_params) {
+    // get the last used emails
+    $last_emails = self::$last_emails;
+    self::$last_emails = [];
+    if (empty($activity_params['target_contact_id']) || empty($last_emails)) {
+      return;
+    }
+
+    // find out, which of the emails is used by the target
+    $query = civicrm_api3('Email', 'get', [
+        'option.limit' => 0,
+        'contact_id'   => ['IN' => $activity_params['target_contact_id']],
+        'email'        => ['IN' => $last_emails],
+        'return'       => 'contact_id,email',
+        'sequential'   => 1
+    ]);
+
+    if ($query['count'] == 0) {
+      Civi::log()->debug("ProVeg Mods: current target does not have the email address used.");
+    } elseif ($query['count'] > 1) {
+      Civi::log()->debug("ProVeg Mods: current target email address is ambiguous.");
+    } else {
+      $email = $query['values'][0]['email'];
+      $target_query = civicrm_api3('Email', 'get', [
+          'option.limit' => 0,
+          'email'        => $email,
+          'return'       => 'contact_id',
+          'sequential'   => 1
+      ]);
+      // add all contacts with this email to the activity targets
+      foreach ($target_query['values'] as $target_email) {
+        if (!in_array($target_email['contact_id'], $activity_params['target_contact_id'])) {
+          $activity_params['target_contact_id'][] = $target_email['contact_id'];
+        }
       }
     }
   }

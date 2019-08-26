@@ -270,9 +270,10 @@ function mods_civicrm_apiWrappers(&$wrappers, $apiRequest) {
  * Implements hook_civicrm_pre
  */
 function mods_civicrm_pre($op, $objectName, $id, &$params) {
-  $CUSTOM_FIELD_ID = 102; // TODO: dynamic?
   if ($op == 'create' && $objectName == 'Membership') {
+    // calculate ProVeg Card title
     try {
+      $CUSTOM_FIELD_ID = 102; // TODO: dynamic?
       // somebody is creating a new membership
 
       if (!empty($params['custom'][$CUSTOM_FIELD_ID][-1]['value'])) {
@@ -300,6 +301,13 @@ function mods_civicrm_pre($op, $objectName, $id, &$params) {
     } catch (Exception $ex) {
       // something went wrong
       CRM_Core_Error::debug_log_message("mods: Error while setting ProVeg Card Title: " . $ex->getMessage());
+    }
+
+  } elseif ($op == 'create' && $objectName == 'Activity') {
+    // Attach created email to all contacts with that email address
+    $ACTIVITY_TYPE_ID = 12; // TODO: dynamic?
+    if ($params['activity_type_id'] == $ACTIVITY_TYPE_ID) {
+      CRM_Mods_Emailprocessor::extendTargetContacts($params);
     }
   }
 }
