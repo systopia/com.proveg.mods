@@ -56,6 +56,7 @@ class CRM_Xdedupe_ProVeg  implements EventSubscriberInterface {
    */
   public function addBuiltinResolvers(GenericHookEvent $xdedupe_list) {
     $xdedupe_list->list = array_merge($xdedupe_list->list, [
+        'CRM_Xdedupe_Resolver_WantsDonationReceipt'
     ]);
   }
 
