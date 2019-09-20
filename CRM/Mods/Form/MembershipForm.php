@@ -256,6 +256,9 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     foreach (['join_date', 'membership_type_id', 'campaign_id'] as $attribute) {
       $membership_data[$attribute] = $values[$attribute];
     }
+
+    // add card title field and run
+    CRM_Mods_CardTitle::addDefaultCardTitle($membership_data, $contact['id']);
     $membership = civicrm_api3('Membership', 'create', $membership_data);
 
     if (empty($_FILES['contract_file'])) {
