@@ -6,4 +6,10 @@
     <title>Me</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
+  <item>
+    <path>civicrm/member/paperform</path>
+    <page_callback>CRM_Mods_Form_MembershipForm</page_callback>
+    <title>MembershipForm</title>
+    <access_arguments>access CiviMember</access_arguments>
+  </item>
 </menu>
