@@ -282,15 +282,17 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
 
     // create contact source activity
     try {
-      civicrm_api3('Activity', 'create', [
-          'activity_type_id'   => 'contact_source',
-          'subject'            => "Mitgliedsvertrag",
-          'activity_date_time' => date('YmdHis'),
-          'target_id'          => $contact['id'],
-          'campaign_id'        => $values['campaign_id'],
-          'status_id'          => 'Completed',
-          'source_contact_id'  => CRM_Donrec_Logic_Settings::getLoggedInContactID(),
-      ]);
+      if (!empty($values['campaign_id'])) {
+        civicrm_api3('Activity', 'create', [
+            'activity_type_id'   => 'contact_source',
+            'subject'            => civicrm_api3('Campaign', 'getvalue', ['id' => $values['campaign_id'], 'return' => 'title']),
+            'activity_date_time' => date('YmdHis'),
+            'target_id'          => $contact['id'],
+            'campaign_id'        => $values['campaign_id'],
+            'status_id'          => 'Completed',
+            'source_contact_id'  => CRM_Donrec_Logic_Settings::getLoggedInContactID(),
+        ]);
+      }
     } catch (Exception $ex) {
       CRM_Core_Session::setStatus(E::ts("Couldn't create source activity: %1", [1 => $ex->getMessage()]), E::ts("Activities Missing"), 'error');
     }
