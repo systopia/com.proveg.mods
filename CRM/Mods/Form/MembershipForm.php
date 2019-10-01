@@ -97,7 +97,7 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
         'email',
         E::ts('email'),
         [],
-        TRUE
+        FALSE
     );
     $this->add(
         'text',
