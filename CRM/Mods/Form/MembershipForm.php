@@ -261,8 +261,8 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     CRM_Mods_CardTitle::addDefaultCardTitle($membership_data, $contact['id']);
     $membership = civicrm_api3('Membership', 'create', $membership_data);
 
-    if (empty($_FILES['contract_file'])) {
-      CRM_Core_Session::setStatus(E::ts("No contract file submitted!"), E::ts("Missing File"), 'warning');
+    if (empty($_FILES['contract_file']['name']) || empty($_FILES['contract_file']['tmp_name'])) {
+        CRM_Core_Session::setStatus(E::ts("No contract file submitted!"), E::ts("Contract Scan Missing"), 'warning');
     } else {
       try {
         // create contract activity with attachment
@@ -333,7 +333,7 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     // find a place to put the file
     $config = CRM_Core_Config::singleton();
     $persistent_file_name = CRM_Utils_File::makeFileName($upload['name']);
-    $persistent_file_path =  $config->uploadDir . DIRECTORY_SEPARATOR . $persistent_file_name;
+    $persistent_file_path = $config->uploadDir . DIRECTORY_SEPARATOR . $persistent_file_name;
 
     // move it there
     copy($upload['tmp_name'], $persistent_file_path);
