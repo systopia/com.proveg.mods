@@ -229,6 +229,17 @@ function mods_civicrm_navigationMenu(&$menu) {
         'separator' => 0,
     ));
   }
+
+  // add paper form link
+  _mods_civix_insert_navigation_menu($menu, 'Memberships', array(
+      'label' => E::ts('Paper Form'),
+      'name' => 'membership_paperform',
+      'url' => 'civicrm/member/paperform',
+      'permission' => 'edit memberships',
+      'operator' => 'OR',
+      'separator' => 0,
+  ));
+
   _mods_civix_navigationMenu($menu);
 }
 
@@ -267,8 +278,9 @@ function mods_civicrm_apiWrappers(&$wrappers, $apiRequest) {
  * Implements hook_civicrm_pre
  */
 function mods_civicrm_pre($op, $objectName, $id, &$params) {
-  $CUSTOM_FIELD_ID = 102; // TODO: dynamic?
   if ($op == 'create' && $objectName == 'Membership') {
+    $CUSTOM_FIELD_ID = CRM_Mods_CardTitle::getCardTitleFieldID();
+    if (!$CUSTOM_FIELD_ID) return;
     try {
       // somebody is creating a new membership
 
