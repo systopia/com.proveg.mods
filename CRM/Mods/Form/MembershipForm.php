@@ -95,7 +95,7 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     $this->add(
         'text',
         'email',
-        E::ts('email'),
+        E::ts('Email'),
         [],
         FALSE
     );
@@ -206,6 +206,7 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
       }
     }
 
+    // validate amount
     $amount = (float) $this->_submitValues['amount'];
     if (!$amount) {
       $this->_errors['amount'] = E::ts("Please enter a valid amount");
@@ -230,10 +231,21 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     $contact_data = [
         'contact_type' => 'Individual'
     ];
-    foreach (['prefix_id', 'first_name', 'last_name', 'birth_date', 'email', 'phone'] as $attribute) {
+    foreach (['prefix_id', 'first_name', 'last_name', 'birth_date', 'email'] as $attribute) {
       $contact_data[$attribute] = $values[$attribute];
     }
     $contact = civicrm_api3('Contact', 'create', $contact_data);
+
+    // add phone
+    if (!empty($values['phone'])) {
+      $phone_data = [
+          'location_type_id' => 1,
+          'contact_id'       => $contact['id'],
+          'phone_type_id'    => 1,
+          'phone'            => $values['phone']
+      ];
+      $phone = civicrm_api3('Phone', 'create', $phone_data);
+    }
 
 
     // create address
@@ -272,7 +284,7 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
             'activity_date_time'      => date('YmdHis'),
             'target_id'               => $contact['id'],
             'status_id'               => 'Completed',
-            'source_contact_id'       => CRM_Donrec_Logic_Settings::getLoggedInContactID(),
+            'source_contact_id'       =>  CRM_Core_Session::getLoggedInContactID(),
         ]);
         $this->attachFile($_FILES['contract_file'], $activity['id']);
       } catch (Exception $ex) {
@@ -290,7 +302,7 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
             'target_id'          => $contact['id'],
             'campaign_id'        => $values['campaign_id'],
             'status_id'          => 'Completed',
-            'source_contact_id'  => CRM_Donrec_Logic_Settings::getLoggedInContactID(),
+            'source_contact_id'  => CRM_Core_Session::getLoggedInContactID(),
         ]);
       }
     } catch (Exception $ex) {
