@@ -269,6 +269,14 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
       $membership_data[$attribute] = $values[$attribute];
     }
 
+    // add annual amount
+    try {
+      $annual_field_id = civicrm_api3('CustomField', 'getvalue', ['name' => 'membership_annual', 'return' => 'id']);
+      $membership_data["custom_{$annual_field_id}"] = ((float) $values['amount']) * 12.0 / (float) $values['frequency_interval'];
+    } catch (Exception $ex) {
+      CRM_Core_Session::setStatus(E::ts("Custom field for annual membership fee not found"), E::ts("Custom Field Not Found"), 'warning');
+    }
+
     // add card title field and run
     CRM_Mods_CardTitle::addDefaultCardTitle($membership_data, $contact['id']);
     $membership = civicrm_api3('Membership', 'create', $membership_data);
