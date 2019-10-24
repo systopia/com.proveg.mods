@@ -271,6 +271,7 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
 
     // add annual amount
     try {
+      // fixme: should be using P60Membership code
       $annual_field_id = civicrm_api3('CustomField', 'getvalue', ['name' => 'membership_annual', 'return' => 'id']);
       $membership_data["custom_{$annual_field_id}"] = ((float) $values['amount']) * 12.0 / (float) $values['frequency_interval'];
     } catch (Exception $ex) {
