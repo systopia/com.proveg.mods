@@ -464,10 +464,10 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     if ($start_date < strtotime('now')) {
       $start_date = strtotime('now');
     }
-    // offset by 3 days
-    $start_date = strtotime('+3 days', $start_date);
+    // offset by 14 days
+    $start_date = strtotime('+14 days', $start_date);
 
-    // move forward until
+    // move forward until 1st of month
     while (date('j', $start_date) > 1) {
       // get to the next day
       $start_date = strtotime("+1 day", $start_date);
