@@ -103,7 +103,7 @@ class CRM_Mods_Emailprocessor {
     $last_emails = self::$last_emails;
     self::$last_emails = [];
     Civi::log()->debug("ProVeg Mods: looking for emails " . json_encode($last_emails));
-    if (empty($activity_params['target_contact_id']) || empty($last_emails)) {
+    if (empty($activity_params['source_contact_id']) || empty($last_emails)) {
       Civi::log()->debug("ProVeg Mods: No target contact ID");
       return;
     }
@@ -111,7 +111,7 @@ class CRM_Mods_Emailprocessor {
     // find out, which of the emails is used by the target
     $query = civicrm_api3('Email', 'get', [
         'option.limit' => 0,
-        'contact_id'   => ['IN' => $activity_params['target_contact_id']],
+        'contact_id'   => ['IN' => $activity_params['source_contact_id']],
         'email'        => ['IN' => $last_emails],
         'return'       => 'contact_id,email',
         'sequential'   => 1
