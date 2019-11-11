@@ -102,6 +102,7 @@ class CRM_Mods_Emailprocessor {
     $last_emails = self::$last_emails;
     self::$last_emails = [];
     if (empty($activity_params['target_contact_id']) || empty($last_emails)) {
+      Civi::log()->debug("ProVeg Mods: No target contact ID");
       return;
     }
 
@@ -119,6 +120,8 @@ class CRM_Mods_Emailprocessor {
     } elseif ($query['count'] > 1) {
       Civi::log()->debug("ProVeg Mods: current target email address is ambiguous.");
     } else {
+      Civi::log()->debug("ProVeg Mods: Activity params before: " . json_encode($$activity_params));
+      Civi::log()->debug("ProVeg Mods: emails found: " . json_encode($query['values']));
       $email = $query['values'][0]['email'];
       $target_query = civicrm_api3('Email', 'get', [
           'option.limit' => 0,
@@ -127,11 +130,14 @@ class CRM_Mods_Emailprocessor {
           'sequential'   => 1
       ]);
       // add all contacts with this email to the activity targets
+      Civi::log()->debug("ProVeg Mods: targets identified: " . json_encode($target_query['values']));
       foreach ($target_query['values'] as $target_email) {
         if (!in_array($target_email['contact_id'], $activity_params['target_contact_id'])) {
           $activity_params['target_contact_id'][] = $target_email['contact_id'];
         }
       }
+      Civi::log()->debug("ProVeg Mods: Activity params after: " . json_encode($$activity_params));
     }
+    Civi::log()->debug("ProVeg Mods: target extension done.");
   }
 }
