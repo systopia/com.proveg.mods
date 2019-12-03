@@ -281,6 +281,13 @@ function mods_civicrm_apiWrappers(&$wrappers, $apiRequest) {
  * Implements hook_civicrm_pre
  */
 function mods_civicrm_pre($op, $objectName, $id, &$params) {
+  // Issue a warning if somebody edits a contact with an active membership
+  if ((!empty($id) && $op == 'edit') &&
+      ($objectName == 'Individual' || $objectName == 'Organization' || $objectName == 'Household')) {
+
+    CRM_Mods_CardTitle::showCardTitleShouldBeAdjustedWarning($id, $params);
+  }
+
   if ($op == 'create' && $objectName == 'Membership') {
     $CUSTOM_FIELD_ID = CRM_Mods_CardTitle::getCardTitleFieldID();
     if (!$CUSTOM_FIELD_ID) return;
@@ -314,4 +321,8 @@ function mods_civicrm_pre($op, $objectName, $id, &$params) {
       CRM_Core_Error::debug_log_message("mods: Error while setting ProVeg Card Title: " . $ex->getMessage());
     }
   }
+}
+
+function mods_civicrm_post() {
+
 }
