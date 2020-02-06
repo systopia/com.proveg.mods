@@ -245,6 +245,23 @@ function mods_civicrm_buildForm($formName, &$form) {
 }
 
 /**
+ * Implements hook_civicrm_postProcess().
+ * @param $formName
+ * @param $form
+ * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_postProcess/
+ */
+function mods_civicrm_postProcess($formName, &$form) {
+  switch ($formName) {
+    case 'CRM_Profile_Form_Edit':
+      $logger = new CRM_Mods_SubscriptionLogger();
+      $logger->log_subscription($form);
+      break;
+    default:
+      return;
+  }
+}
+
+/**
  * Implements mods_civicrm_gdprx_postConsent().
  *
  * @see https://github.com/systopia/de.systopia.gdprx/issues/9
@@ -300,3 +317,18 @@ function mods_civicrm_pre($op, $objectName, $id, &$params) {
     }
   }
 }
+
+//function mods_civicrm_alterMailParams(&$params, $context) {
+//
+//  if (!isset($params['headers']['X-MJ-EventPayload'])) {
+//    return json_encode([
+//      'jobId' => (int) CRM_Utils_Array::value('job_id', $params),
+//      'activityId' => (int) CRM_Utils_Array::value('custom-activity-id', $params),
+//      'campaignId' => (int) CRM_Utils_Array::value('custom-campaign-id', $params),
+//    ]);
+//    CRM_Core_Error::debug_log_message("[systopia debug alter Mailer @ com.proveg.mods] empty" . json_encode($params));
+//  }
+//
+//  CRM_Core_Error::debug_log_message("[systopia debug alter Mailer @ com.proveg.mods] replaced" . json_encode($params));
+//
+//}

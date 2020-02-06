@@ -23,6 +23,8 @@ class CRM_Mods_Config {
   private static $singleton = NULL;
   private static $settings  = NULL;
 
+  private static $log_file_name = "ProvegMod_SubscriptionLog";
+
   /**
    * get the config instance
    */
@@ -56,6 +58,10 @@ class CRM_Mods_Config {
     }
 
     return self::$settings;
+  }
+
+  public function get_log_file_name() {
+    return self::$log_file_name;
   }
 
   /**
