@@ -258,30 +258,7 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     }
     $address = civicrm_api3('Address', 'create', $address_data);
 
-
-    // create membership
-    $start_date = $this->calculateStartDate($values['join_date']);
-    $membership_data = [
-        'contact_id' => $contact['id'],
-        'start_date' => $start_date
-    ];
-    foreach (['join_date', 'membership_type_id', 'campaign_id'] as $attribute) {
-      $membership_data[$attribute] = $values[$attribute];
-    }
-
-    // add annual amount
-    try {
-      // fixme: should be using P60Membership code
-      $annual_field_id = civicrm_api3('CustomField', 'getvalue', ['name' => 'membership_annual', 'return' => 'id']);
-      $membership_data["custom_{$annual_field_id}"] = ((float) $values['amount']) * 12.0 / (float) $values['frequency_interval'];
-    } catch (Exception $ex) {
-      CRM_Core_Session::setStatus(E::ts("Custom field for annual membership fee not found"), E::ts("Custom Field Not Found"), 'warning');
-    }
-
-    // add card title field and run
-    CRM_Mods_CardTitle::addDefaultCardTitle($membership_data, $contact['id']);
-    $membership = civicrm_api3('Membership', 'create', $membership_data);
-
+    // add contract file
     if (empty($_FILES['contract_file']['name']) || empty($_FILES['contract_file']['tmp_name'])) {
         CRM_Core_Session::setStatus(E::ts("No contract file submitted!"), E::ts("Contract Scan Missing"), 'warning');
     } else {
@@ -318,6 +295,17 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
       CRM_Core_Session::setStatus(E::ts("Couldn't create source activity: %1", [1 => $ex->getMessage()]), E::ts("Activities Missing"), 'error');
     }
 
+    // create membership
+    $start_date = CRM_Mods_Memberships::calculateStartDate($values['join_date']);
+    $membership_data = [
+        'contact_id' => $contact['id'],
+        'start_date' => $start_date
+    ];
+    foreach (['join_date', 'membership_type_id', 'campaign_id'] as $attribute) {
+      $membership_data[$attribute] = $values[$attribute];
+    }
+    $membership = civicrm_api3('Membership', 'create', $membership_data);
+
     // create sepa mandate
     $mandate_data = [
         'contact_id'        => $contact['id'],
@@ -332,8 +320,8 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     $mandate = civicrm_api3('SepaMandate', 'createfull', $mandate_data);
     $mandate = civicrm_api3('SepaMandate', 'getsingle', ['id' => $mandate['id']]);
 
-    // assign sepa mandate to membership
-    CRM_Membership_PaidByLogic::getSingleton()->changeContract($membership['id'], $mandate['entity_id']);
+    // run general post processing
+    CRM_Mods_Memberships::newMembershipPostprocess($membership['id'], $contact['id'], $mandate['entity_id'], TRUE);
 
     // inform user
     CRM_Core_Session::setStatus(E::ts('Contact, mandate and membership created (<a href="%2">Contact [%1]</a>).', [
@@ -454,24 +442,5 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
       $options[$option['id']] = $option['title'];
     }
     return $options;
-  }
-
-  /**
-   * determine the mandate/membership start date
-   */
-  protected function calculateStartDate($init_date) {
-    $start_date = strtotime($init_date);
-    if ($start_date < strtotime('now')) {
-      $start_date = strtotime('now');
-    }
-    // offset by 14 days
-    $start_date = strtotime('+14 days', $start_date);
-
-    // move forward until 1st of month
-    while (date('j', $start_date) > 1) {
-      // get to the next day
-      $start_date = strtotime("+1 day", $start_date);
-    }
-    return date('Y-m-d', $start_date);
   }
 }
