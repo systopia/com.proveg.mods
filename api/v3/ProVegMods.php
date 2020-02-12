@@ -55,7 +55,12 @@ function _civicrm_api3_pro_veg_mods_membership_postprocess_spec(&$params) {
  *   Postprocessing for a newly created membership
  */
 function civicrm_api3_pro_veg_mods_membership_postprocess($params) {
-
-  return civicrm_api3_create_success($messages);
+  CRM_Mods_Memberships::newMembershipPostprocess(
+      $params['membership_id'],
+      $params['contact_id'],
+      $params['recurring_contribution_id'],
+      FALSE
+  );
+  return civicrm_api3_create_success();
 }
 

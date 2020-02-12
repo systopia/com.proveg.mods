@@ -80,10 +80,10 @@ class CRM_Mods_Memberships {
             'start_date' => $membership_update['start_date']
         ]);
       }
-    }
 
-    // assign sepa mandate to membership
-    CRM_Membership_PaidByLogic::getSingleton()->changeContract($membership_id, $contribution_recur_id);
+      // assign sepa mandate to membership
+      CRM_Membership_PaidByLogic::getSingleton()->changeContract($membership_id, $contribution_recur_id);
+    }
   }
 
   /**
