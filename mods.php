@@ -286,6 +286,13 @@ function mods_civicrm_pre($op, $objectName, $id, &$params) {
       ($objectName == 'Individual' || $objectName == 'Organization' || $objectName == 'Household')) {
 
     CRM_Mods_CardTitle::showCardTitleShouldBeAdjustedWarning($id, $params);
+
+  } elseif ($op == 'create' && $objectName == 'Activity') {
+    // Attach created email to all contacts with that email address
+    $ACTIVITY_TYPE_ID = 12; // TODO: dynamic?
+    if ($params['activity_type_id'] == $ACTIVITY_TYPE_ID) {
+      CRM_Mods_Emailprocessor::extendTargetContacts($params);
+    }
   }
 }
 
@@ -315,11 +322,11 @@ function mods_civicrm_post($op, $objectName, $objectId, &$objectRef) {
 
       // if field is empty -> calculate new value
       if (empty($membership[$title_field])) {
-        $field_list = ['formal_title','first_name','last_name'];
-        $contact = civicrm_api3('Contact', 'getsingle', [
+        $field_list = ['formal_title', 'first_name', 'last_name'];
+        $contact    = civicrm_api3('Contact', 'getsingle', [
             'id'     => $membership['contact_id'],
             'return' => implode(',', $field_list) . ',contact_type,display_name']);
-        $pieces = [];
+        $pieces     = [];
         if ($contact['contact_type'] == 'Individual') {
           foreach ($field_list as $field) {
             if (!empty($contact[$field])) {
@@ -341,5 +348,6 @@ function mods_civicrm_post($op, $objectName, $objectId, &$objectRef) {
       // something went wrong
       CRM_Core_Error::debug_log_message("mods: Error while setting ProVeg Card Title: " . $ex->getMessage());
     }
+    $disable_card_title_update = false;
   }
 }
