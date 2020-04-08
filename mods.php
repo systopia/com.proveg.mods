@@ -75,7 +75,7 @@ function mods_civicrm_config(&$config) {
  * @see PV-11651
  */
 function mods_civicrm_validateForm($formName, &$fields, &$files, &$form, &$errors) {
-  if ($formName == 'CRM_Contact_Form_Contact') {
+  if (($formName == 'CRM_Contact_Form_Contact') || $formName == 'CRM_Contact_Form_Inline_CommunicationPreferences') {
     if (($fields['preferred_language'] == NULL) || empty($fields['preferred_language'])) {
       $errors['preferred_language'] = E::ts('%1 is a required field.', [1 => 'preferred_language']);
     }
