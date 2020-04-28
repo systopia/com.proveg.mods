@@ -41,6 +41,7 @@ class CRM_Mods_Memberships {
 
     // adjust start date
     $membership_update['start_date'] = self::calculateStartDate($membership['start_date']);
+    $membership_update['end_date'] = self::calculateEndDate($membership_update['start_date']);
 
     // add annual amount
     try {
@@ -99,6 +100,21 @@ class CRM_Mods_Memberships {
       $start_date = strtotime("+1 day", $start_date);
     }
     return date('Y-m-d', $start_date);
+  }
+
+    /**
+     * Calculates the membership end date for a given start date.
+     *
+     * @param string $start_date
+     *   A date/time string parseable by strtotime().
+     *
+     * @return string
+     *   The membership end date formatted as "Y-m-d".
+     */
+  public static function calculateEndDate($start_date) {
+      $date = date_create(strtotime($start_date));
+      $date->modify('+1 year -1 day'); // Last day of previous month.
+      return $date->format('Y-m-d');
   }
 
 
