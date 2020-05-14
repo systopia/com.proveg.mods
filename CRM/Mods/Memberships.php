@@ -65,6 +65,11 @@ class CRM_Mods_Memberships {
     // add card title
     CRM_Mods_CardTitle::addDefaultCardTitle($membership_update, $contact_id);
 
+    // set Beitragsart (#27) to 1 (Einzelmitglied)
+    if (empty($membership['custom_27'])) {
+      $membership_update['custom_27'] = 1;
+    }
+
     // write membership update
     $membership = civicrm_api3('Membership', 'create', $membership_update);
 
