@@ -29,7 +29,7 @@ class CRM_Mods_CardTitle {
     // somebody wants to edit a contact, check if it's any of the fields we monitor:
     $fields_to_monitor = ['first_name', 'last_name', 'prefix_id', 'organization_name', 'household_name', 'formal_title'];
     $fields_provided   = array_intersect($fields_to_monitor, array_keys($contact_changes));
-    if (!empty($fields_provided) && self::contactHasActiveMembership($contact_id)) {
+    if (!empty($fields_provided) && CRM_Mods_Memberships::contactHasActiveMembership($contact_id)) {
       // something relevant was submitted. Load the previous data
       try {
         $current_data = civicrm_api3('Contact', 'getsingle', ['id' => $contact_id, 'return' => implode(',', $fields_provided)]);
@@ -46,26 +46,6 @@ class CRM_Mods_CardTitle {
         Civi::log()->debug("CardTitle check failed: " . $ex->getMessage());
       }
     }
-  }
-
-  /**
-   * Check if the given contact has a current/active membership (of type "Membership")
-   *
-   * @param $contact_id  int Contact ID
-   * @return bool TRUE iff the contact currently has one or more active memberships
-   */
-  protected static function contactHasActiveMembership($contact_id) {
-    try {
-      $count = civicrm_api3('Membership', 'getcount', [
-          'contact_id'         => $contact_id,
-          'status_id'          => ['IN' => [1, 2, 3, 8]], // New, Current, Grace, Kündigung Ausgesprochen
-          'membership_type_id' => 1                       // "Mitglied"
-      ]);
-      return $count > 0;
-    } catch (Exception $ex) {
-      Civi::log()->debug("CardTitle: Active membership lookup failed: " . $ex->getMessage());
-    }
-    return FALSE;
   }
 
   /**
