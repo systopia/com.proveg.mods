@@ -119,9 +119,8 @@ class CRM_Mods_Memberships {
      *   The membership end date formatted as "Y-m-d".
      */
   public static function calculateEndDate($start_date) {
-      $date = date_create(strtotime($start_date));
-      $date->modify('+1 year -1 day'); // Last day of previous month.
-      return $date->format('Y-m-d');
+      $end_date = strtotime("{$start_date} +1 year -1 day");
+      return date('Y-m-d', $end_date);
   }
 
 
