@@ -41,6 +41,10 @@
         cj('#gender_id').val('2');
         break;
 
+      case '': // empty
+        cj('#gender_id').val('3');
+        break;
+
       default:
         // nothing to do
 

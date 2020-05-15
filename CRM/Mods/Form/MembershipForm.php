@@ -249,8 +249,6 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     foreach (['prefix_id', 'first_name', 'last_name', 'birth_date', 'email', 'gender_id'] as $attribute) {
       $contact_data[$attribute] = $values[$attribute];
     }
-    // derive gender
-    $contact_data['gender_id'] = CRM_Utils_Array::value($contact_data['prefix_id'], ['' => 3, 5 => 1, 6 => 2], '');
     // call api
     $contact = civicrm_api3('Contact', 'create', $contact_data);
 
