@@ -19,7 +19,7 @@ use CRM_Mods_ExtensionUtil as E;
  */
 class CRM_Mods_Memberships {
 
-  const FEE_TYPE_FIELD = 'custom_16'; // 27
+  const FEE_TYPE_FIELD = 'custom_27'; // adjust if needed
 
   /**
    * General new membership post processing
