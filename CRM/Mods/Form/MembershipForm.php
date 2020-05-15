@@ -46,6 +46,13 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
         TRUE
     );
     $this->add(
+        'select',
+        'gender_id',
+        E::ts('Gender'),
+        $this->getGenders(),
+        FALSE
+    );
+    $this->add(
         'datepicker',
         'birth_date',
         E::ts('Birth Date'),
@@ -239,7 +246,7 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     $contact_data = [
         'contact_type' => 'Individual'
     ];
-    foreach (['prefix_id', 'first_name', 'last_name', 'birth_date', 'email'] as $attribute) {
+    foreach (['prefix_id', 'first_name', 'last_name', 'birth_date', 'email', 'gender_id'] as $attribute) {
       $contact_data[$attribute] = $values[$attribute];
     }
     // derive gender
@@ -431,6 +438,23 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
         }
         return $options;
     }
+
+  /**
+   * Get individual prefix options
+   */
+  protected function getGenders() {
+    $options = ['' => E::ts('-select-')];
+    $query = civicrm_api3('OptionValue', 'get', [
+        'option_group_id' => 'gender',
+        'option.limit'    => 0,
+        'is_active'       => 1,
+        'return'          => 'value,label'
+    ]);
+    foreach ($query['values'] as $option) {
+      $options[$option['value']] = $option['label'];
+    }
+    return $options;
+  }
 
   /**
    * Get individual prefix options
