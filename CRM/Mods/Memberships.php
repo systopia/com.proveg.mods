@@ -19,6 +19,8 @@ use CRM_Mods_ExtensionUtil as E;
  */
 class CRM_Mods_Memberships {
 
+  const FEE_TYPE_FIELD = 'custom_16'; // 27
+
   /**
    * General new membership post processing
    *
@@ -65,9 +67,9 @@ class CRM_Mods_Memberships {
     // add card title
     CRM_Mods_CardTitle::addDefaultCardTitle($membership_update, $contact_id);
 
-    // set Beitragsart (#27) to 1 (Einzelmitglied)
-    if (empty($membership['custom_27'])) {
-      $membership_update['custom_27'] = 1;
+    // set fee type (#27) to '1' (Individual)
+    if (!isset($membership[CRM_Mods_Memberships::FEE_TYPE_FIELD])) {
+      $membership_update[CRM_Mods_Memberships::FEE_TYPE_FIELD] = 1;
     }
 
     // write membership update

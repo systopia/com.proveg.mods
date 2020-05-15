@@ -29,7 +29,7 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
         'prefix_id',
         E::ts('Individual Prefix'),
         $this->getPrefixes(),
-        TRUE
+        FALSE
     );
     $this->add(
       'text',
@@ -123,7 +123,13 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
         $this->getMembershipTypes(),
         TRUE
     );
-
+    $this->add(
+        'select',
+        'fee_type',
+        E::ts('Fee Type'),
+        $this->getFeeTypeOptions(),
+        FALSE
+    );
     $this->add(
         'select',
         'campaign_id',
@@ -225,6 +231,7 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
         'join_date'          => $values['join_date'],
         'campaign_id'        => $values['campaign_id'],
         'membership_type_id' => $values['membership_type_id'],
+        'fee_type'           => $values['fee_type'],
         'country_id'         => $values['country_id'],
     ]);
 
@@ -303,12 +310,18 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     $start_date = CRM_Mods_Memberships::calculateStartDate($values['join_date']);
     $membership_data = [
         'contact_id' => $contact['id'],
-        'start_date' => $start_date
+        'start_date' => $start_date,
     ];
     foreach (['join_date', 'membership_type_id', 'campaign_id'] as $attribute) {
       $membership_data[$attribute] = $values[$attribute];
     }
     $membership = civicrm_api3('Membership', 'create', $membership_data);
+
+    // set the fee type
+    civicrm_api3('Membership', 'create', [
+      'id' => $membership['id'],
+      CRM_Mods_Memberships::FEE_TYPE_FIELD  => $values['fee_type'],
+    ]);
 
     // create sepa mandate
     $mandate_data = [
@@ -401,6 +414,23 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     }
     return $options;
   }
+
+    /**
+     * Get individual prefix options
+     */
+    protected function getFeeTypeOptions() {
+        $options = ['' => E::ts('keine Beitragsart')];
+        $query = civicrm_api3('OptionValue', 'get', [
+            'option_group_id' => 'fee_type',
+            'option.limit'    => 0,
+            'is_active'       => 1,
+            'return'          => 'value,label'
+        ]);
+        foreach ($query['values'] as $option) {
+            $options[$option['value']] = $option['label'];
+        }
+        return $options;
+    }
 
   /**
    * Get individual prefix options
