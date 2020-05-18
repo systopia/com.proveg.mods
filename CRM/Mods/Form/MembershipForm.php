@@ -182,11 +182,14 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     );
 
 
-    // set some defaults:
+    // set last-used defaults:
     $defaults = Civi::settings()->get('proveg_membership_paperform_defaults');
     if (is_array($defaults)) {
       $this->setDefaults($defaults);
     }
+
+    // set prefix default 'Frau'
+    $this->setDefaults(['prefix_id' => 5]);
 
     // add button
     $this->addButtons([
@@ -434,6 +437,9 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
         foreach ($query['values'] as $option) {
             $options[$option['value']] = $option['label'];
         }
+        // remove type 'Abonnement', see https://projekte.systopia.de/issues/12016#note-7
+        unset($options['4']);
+
         return $options;
     }
 
