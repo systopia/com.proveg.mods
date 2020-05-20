@@ -24,54 +24,49 @@ class CRM_Mods_SubscriptionLogger {
   // data
   private $contact_id;
   private $email;
-  private $group_id_hashes;
+  private $hash;
+  private $group_id;
+
+  private $logging_types = ["ProVegApi", "MailingEventConfirm"];
+
 
   /**
    * CRM_Mods_SubscriptionLogger constructor.
+   *
+   * @param $contact_id
+   * @param $hash
+   * @param $group_id
+   * @param null $email
    */
-  public function __construct(&$form) {
+  public function __construct($contact_id, $hash, $group_id, $email = NULL) {
     $config = CRM_Mods_Config::singleton();
     $file = CRM_Core_Config::singleton()->configAndLogDir . $config->get_log_file_name() .'.log';
     $this->_log_file = fopen($file, 'a');
 
-    $this->email = $_POST['email-Primary'];
-    $this->contact_id = $form->_id;
-  }
-
-  private function get_hash_value($email, $group_id, $contact_id) {
-
-  }
-
-  private function get_email_id($email) {
-    $result = civicrm_api3('Email', 'get', [
-      'sequential' => 1,
-      'email' => $email,
-    ]);
-    $highest_id = 0;
-    foreach ($result['values'] as $value) {
-      $email_id = $value['id'];
-      if ($email_id > $highest_id) {
-        $highest_id = $email_id;
-      }
+    $this->contact_id = $contact_id;
+    $this->group_id = $group_id;
+    $this->hash = $hash;
+    if (!empty($email)) {
+      $this->email = $email;
     }
-    return $highest_id;
   }
+
 
   /**
-   * @param $form
+   * @param $type
+   * type is either via API, or via Wrapper from MailingEventConfirm
    */
-  public function log_subscription() {
-    // get contact_id
-
-
-    $group_ids = [];
-    $hash_values = [];
+  public function log_subscription($type) {
+    if (!in_array($type, $this->logging_types)) {
+      CRM_Core_Error::debug_log_message("[CRM_Mods_SubscriptionLogger] Invalid logging Type '{$type}'. Must be in " . json_encode($this->logging_types));
+      return;
+    }
+    $message = "[{$this->contact_id}] >> Group_id: {$this->group_id}, Hash: {$this->hash}";
+    if (isset($this->email)) {
+      $message .= ", {$this->email}";
+    }
+    $this->log_to_file($type, $message);
   }
-
-  public function set_bulkflag() {
-
-  }
-
 
   /**
    * Log to File
@@ -82,7 +77,7 @@ class CRM_Mods_SubscriptionLogger {
   private function log_to_file($type, $message) {
     fputs($this->_log_file, date('Y-m-d h:i:s'));
     fputs($this->_log_file, ' ');
-    fputs($this->_log_file, $type);
+    fputs($this->_log_file, "Action: " . $type);
     fputs($this->_log_file, ' ');
     fputs($this->_log_file, $message);
     fputs($this->_log_file, "\n");
