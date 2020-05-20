@@ -278,6 +278,9 @@ function mods_civicrm_apiWrappers(&$wrappers, $apiRequest) {
       && in_array($apiRequest['action'], ['create', 'createfull'])) {
     $wrappers[] = new CRM_Mods_InternationalMandateWrapper();
   }
+  if ($apiRequest['entity'] == 'MailingEventConfirm' && $apiRequest['action'] == 'create') {
+    $wrappers[] = new CRM_Mods_MailingEventConfirmWrapper();
+  }
 }
 
 /**
