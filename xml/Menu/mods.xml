@@ -1,15 +1,11 @@
 <?xml version="1.0"?>
 <menu>
   <item>
-    <path>civicrm/me</path>
-    <page_callback>CRM_Mods_Page_Me</page_callback>
-    <title>Me</title>
-    <access_arguments>access CiviCRM</access_arguments>
-  </item>
-  <item>
     <path>civicrm/admin/setting/mod_logging</path>
     <page_callback>CRM_Mods_Form_Settings</page_callback>
-    <title>Settings</title>
+    <title>ProVeg Mods Settings</title>
     <access_arguments>access CiviCRM</access_arguments>
+    <adminGroup>System Settings</adminGroup>
+    <icon>admin/small/online_contribution_pages.png</icon>
   </item>
 </menu>
