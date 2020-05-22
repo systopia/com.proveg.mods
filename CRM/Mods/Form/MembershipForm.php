@@ -60,6 +60,13 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
         FALSE,
         ['time' => FALSE]
     );
+    $this->add(
+      'select',
+      'preferred_language',
+      E::ts('Preferred Language'),
+      $this->getPreferredLanguages(),
+      TRUE
+    );
 
     // add address fields
     $this->add(
@@ -189,9 +196,14 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     }
 
     // set prefix default 'Frau'
-    $this->setDefaults(['prefix_id' => 5]);
+    $this->setDefaults(
+      [
+          'prefix_id'          => 5,
+          'preferred_language' => 'de_DE'
+      ]
+    );
 
-    // add button
+      // add button
     $this->addButtons([
         [
             'type'      => 'submit',
@@ -249,7 +261,7 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     $contact_data = [
         'contact_type' => 'Individual'
     ];
-    foreach (['prefix_id', 'first_name', 'last_name', 'birth_date', 'email', 'gender_id'] as $attribute) {
+    foreach (['prefix_id', 'first_name', 'last_name', 'birth_date', 'email', 'gender_id', 'preferred_language'] as $attribute) {
       $contact_data[$attribute] = $values[$attribute];
     }
     // call api
@@ -459,6 +471,23 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     }
     return $options;
   }
+
+    /**
+     * Get individual prefix options
+     */
+    protected function getPreferredLanguages() {
+        $options = [];
+        $query = civicrm_api3('OptionValue', 'get', [
+            'option_group_id' => 'languages',
+            'option.limit'    => 0,
+            'is_active'       => 1,
+            'return'          => 'name,label'
+        ]);
+        foreach ($query['values'] as $option) {
+            $options[$option['name']] = $option['label'];
+        }
+        return $options;
+    }
 
   /**
    * Get individual prefix options
