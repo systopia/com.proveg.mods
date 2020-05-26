@@ -29,7 +29,7 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
         'prefix_id',
         E::ts('Individual Prefix'),
         $this->getPrefixes(),
-        TRUE
+        FALSE
     );
     $this->add(
       'text',
@@ -46,12 +46,26 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
         TRUE
     );
     $this->add(
+        'select',
+        'gender_id',
+        E::ts('Gender'),
+        $this->getGenders(),
+        FALSE
+    );
+    $this->add(
         'datepicker',
         'birth_date',
         E::ts('Birth Date'),
         [],
         FALSE,
         ['time' => FALSE]
+    );
+    $this->add(
+      'select',
+      'preferred_language',
+      E::ts('Preferred Language'),
+      $this->getPreferredLanguages(),
+      TRUE
     );
 
     // add address fields
@@ -125,6 +139,13 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     );
     $this->add(
         'select',
+        'fee_type',
+        E::ts('Fee Type'),
+        $this->getFeeTypeOptions(),
+        FALSE
+    );
+    $this->add(
+        'select',
         'campaign_id',
         E::ts('Campaign'),
         $this->getCampaigns(),
@@ -168,13 +189,21 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     );
 
 
-    // set some defaults:
+    // set last-used defaults:
     $defaults = Civi::settings()->get('proveg_membership_paperform_defaults');
     if (is_array($defaults)) {
       $this->setDefaults($defaults);
     }
 
-    // add button
+    // set prefix default 'Frau'
+    $this->setDefaults(
+      [
+          'prefix_id'          => 5,
+          'preferred_language' => 'de_DE'
+      ]
+    );
+
+      // add button
     $this->addButtons([
         [
             'type'      => 'submit',
@@ -224,6 +253,7 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
         'join_date'          => $values['join_date'],
         'campaign_id'        => $values['campaign_id'],
         'membership_type_id' => $values['membership_type_id'],
+        'fee_type'           => $values['fee_type'],
         'country_id'         => $values['country_id'],
     ]);
 
@@ -231,9 +261,10 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     $contact_data = [
         'contact_type' => 'Individual'
     ];
-    foreach (['prefix_id', 'first_name', 'last_name', 'birth_date', 'email'] as $attribute) {
+    foreach (['prefix_id', 'first_name', 'last_name', 'birth_date', 'email', 'gender_id', 'preferred_language'] as $attribute) {
       $contact_data[$attribute] = $values[$attribute];
     }
+    // call api
     $contact = civicrm_api3('Contact', 'create', $contact_data);
 
     // add phone
@@ -258,30 +289,7 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     }
     $address = civicrm_api3('Address', 'create', $address_data);
 
-
-    // create membership
-    $start_date = $this->calculateStartDate($values['join_date']);
-    $membership_data = [
-        'contact_id' => $contact['id'],
-        'start_date' => $start_date
-    ];
-    foreach (['join_date', 'membership_type_id', 'campaign_id'] as $attribute) {
-      $membership_data[$attribute] = $values[$attribute];
-    }
-
-    // add annual amount
-    try {
-      // fixme: should be using P60Membership code
-      $annual_field_id = civicrm_api3('CustomField', 'getvalue', ['name' => 'membership_annual', 'return' => 'id']);
-      $membership_data["custom_{$annual_field_id}"] = ((float) $values['amount']) * 12.0 / (float) $values['frequency_interval'];
-    } catch (Exception $ex) {
-      CRM_Core_Session::setStatus(E::ts("Custom field for annual membership fee not found"), E::ts("Custom Field Not Found"), 'warning');
-    }
-
-    // add card title field and run
-    CRM_Mods_CardTitle::addDefaultCardTitle($membership_data, $contact['id']);
-    $membership = civicrm_api3('Membership', 'create', $membership_data);
-
+    // add contract file
     if (empty($_FILES['contract_file']['name']) || empty($_FILES['contract_file']['tmp_name'])) {
         CRM_Core_Session::setStatus(E::ts("No contract file submitted!"), E::ts("Contract Scan Missing"), 'warning');
     } else {
@@ -318,6 +326,23 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
       CRM_Core_Session::setStatus(E::ts("Couldn't create source activity: %1", [1 => $ex->getMessage()]), E::ts("Activities Missing"), 'error');
     }
 
+    // create membership
+    $start_date = CRM_Mods_Memberships::calculateStartDate($values['join_date']);
+    $membership_data = [
+        'contact_id' => $contact['id'],
+        'start_date' => $start_date,
+    ];
+    foreach (['join_date', 'membership_type_id', 'campaign_id'] as $attribute) {
+      $membership_data[$attribute] = $values[$attribute];
+    }
+    $membership = civicrm_api3('Membership', 'create', $membership_data);
+
+    // set the fee type
+    civicrm_api3('Membership', 'create', [
+      'id' => $membership['id'],
+      CRM_Mods_Memberships::FEE_TYPE_FIELD  => $values['fee_type'],
+    ]);
+
     // create sepa mandate
     $mandate_data = [
         'contact_id'        => $contact['id'],
@@ -332,8 +357,8 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     $mandate = civicrm_api3('SepaMandate', 'createfull', $mandate_data);
     $mandate = civicrm_api3('SepaMandate', 'getsingle', ['id' => $mandate['id']]);
 
-    // assign sepa mandate to membership
-    CRM_Membership_PaidByLogic::getSingleton()->changeContract($membership['id'], $mandate['entity_id']);
+    // run general post processing
+    CRM_Mods_Memberships::newMembershipPostprocess($membership['id'], $contact['id'], $mandate['entity_id'], TRUE);
 
     // inform user
     CRM_Core_Session::setStatus(E::ts('Contact, mandate and membership created (<a href="%2">Contact [%1]</a>).', [
@@ -397,7 +422,7 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
    * Get individual prefix options
    */
   protected function getPrefixes() {
-    $options = [];
+    $options = ['' => E::ts('no Prefix')];
     $query = civicrm_api3('OptionValue', 'get', [
         'option_group_id' => 'individual_prefix',
         'option.limit'    => 0,
@@ -409,6 +434,60 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     }
     return $options;
   }
+
+    /**
+     * Get individual prefix options
+     */
+    protected function getFeeTypeOptions() {
+        $options = ['' => E::ts('keine Beitragsart')];
+        $query = civicrm_api3('OptionValue', 'get', [
+            'option_group_id' => 'fee_type',
+            'option.limit'    => 0,
+            'is_active'       => 1,
+            'return'          => 'value,label'
+        ]);
+        foreach ($query['values'] as $option) {
+            $options[$option['value']] = $option['label'];
+        }
+        // remove type 'Abonnement', see https://projekte.systopia.de/issues/12016#note-7
+        unset($options['4']);
+
+        return $options;
+    }
+
+  /**
+   * Get individual prefix options
+   */
+  protected function getGenders() {
+    $options = ['' => E::ts('-select-')];
+    $query = civicrm_api3('OptionValue', 'get', [
+        'option_group_id' => 'gender',
+        'option.limit'    => 0,
+        'is_active'       => 1,
+        'return'          => 'value,label'
+    ]);
+    foreach ($query['values'] as $option) {
+      $options[$option['value']] = $option['label'];
+    }
+    return $options;
+  }
+
+    /**
+     * Get individual prefix options
+     */
+    protected function getPreferredLanguages() {
+        $options = [];
+        $query = civicrm_api3('OptionValue', 'get', [
+            'option_group_id' => 'languages',
+            'option.limit'    => 0,
+            'is_active'       => 1,
+            'return'          => 'name,label'
+        ]);
+        foreach ($query['values'] as $option) {
+            $options[$option['name']] = $option['label'];
+        }
+        return $options;
+    }
 
   /**
    * Get individual prefix options
@@ -454,24 +533,5 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
       $options[$option['id']] = $option['title'];
     }
     return $options;
-  }
-
-  /**
-   * determine the mandate/membership start date
-   */
-  protected function calculateStartDate($init_date) {
-    $start_date = strtotime($init_date);
-    if ($start_date < strtotime('now')) {
-      $start_date = strtotime('now');
-    }
-    // offset by 14 days
-    $start_date = strtotime('+14 days', $start_date);
-
-    // move forward until 1st of month
-    while (date('j', $start_date) > 1) {
-      // get to the next day
-      $start_date = strtotime("+1 day", $start_date);
-    }
-    return date('Y-m-d', $start_date);
   }
 }
