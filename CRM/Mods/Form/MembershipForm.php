@@ -21,6 +21,8 @@ use CRM_Mods_ExtensionUtil as E;
  *  - crete and link SEPA mandate
  */
 class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
+  const MEMBERSHIP_FORM_SOURCE = 'Paper Form';
+
   public function buildQuickForm() {
 
     // add contact elements
@@ -331,6 +333,7 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     $membership_data = [
         'contact_id' => $contact['id'],
         'start_date' => $start_date,
+        'source'     => self::MEMBERSHIP_FORM_SOURCE,
     ];
     foreach (['join_date', 'membership_type_id', 'campaign_id'] as $attribute) {
       $membership_data[$attribute] = $values[$attribute];
@@ -350,6 +353,7 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
         'type'              => 'RCUR',
         'frequency_unit'    => 'month',
         'financial_type_id' => 2,
+        'source'            => self::MEMBERSHIP_FORM_SOURCE,
     ];
     foreach (['iban', 'bic', 'frequency_interval', 'amount'] as $attribute) {
       $mandate_data[$attribute] = $values[$attribute];
