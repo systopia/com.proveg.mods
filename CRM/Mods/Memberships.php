@@ -31,7 +31,10 @@ class CRM_Mods_Memberships {
    */
   public static function newMembershipPostprocess($membership_id, $contact_id, $contribution_recur_id, $ui_present) {
     // load current data
-    $membership = civicrm_api3('Membership', 'getsingle', ['id' => $membership_id]);
+    $membership = civicrm_api3('Membership', 'getsingle', [
+        'id'     => $membership_id,
+        'return' => 'id,start_date,' . CRM_Mods_Memberships::FEE_TYPE_FIELD,
+    ]);
     if ($contribution_recur_id) {
       $recurring_contribution = civicrm_api3('ContributionRecur', 'getsingle', ['id' => $contribution_recur_id]);
     }
@@ -68,12 +71,12 @@ class CRM_Mods_Memberships {
     CRM_Mods_CardTitle::addDefaultCardTitle($membership_update, $contact_id);
 
     // set fee type (#27) to '1' (Individual)
-    if (!isset($membership[CRM_Mods_Memberships::FEE_TYPE_FIELD])) {
+    if (empty($membership[CRM_Mods_Memberships::FEE_TYPE_FIELD])) {
       $membership_update[CRM_Mods_Memberships::FEE_TYPE_FIELD] = 1;
     }
 
     // write membership update
-    $membership = civicrm_api3('Membership', 'create', $membership_update);
+    civicrm_api3('Membership', 'create', $membership_update);
 
     // adjust mandate start date
     if (isset($recurring_contribution)) {
