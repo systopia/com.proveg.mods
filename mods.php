@@ -50,6 +50,17 @@ function mods_civicrm_modify_txmessage(&$txmessage, $info, $creditor) {
   $txmessage = CRM_Mods_SepaMandate::generateTxMessage($info, $creditor);
 }
 
+function mods_civicrm_searchTasks($objectType, &$tasks) {
+  // add "Anonymise contributions" task to contact list:
+  if ($objectType == 'contact') {
+    $tasks[] = [
+      'title' => E::ts('Anonymise contributions'),
+      'class' => 'CRM_Mods_Form_Task_ContributionAnonymiser',
+      'result' => false
+    ];
+  }
+}
+
 ///**
 // * Implements CiviSCRM hook to inject JS
 // */
