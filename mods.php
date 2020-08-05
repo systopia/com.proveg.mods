@@ -64,6 +64,22 @@ function mods_civicrm_modify_txmessage(&$txmessage, $info, $creditor) {
  */
 function mods_civicrm_config(&$config) {
   _mods_civix_civicrm_config($config);
+
+  require_once 'CRM/Xdedupe/ProVeg.php';
+  \Civi::dispatcher()->addSubscriber(new CRM_Xdedupe_ProVeg());
+}
+
+/**
+ * Implements hook_validateForm
+ *
+ * @see PV-11651
+ */
+function mods_civicrm_validateForm($formName, &$fields, &$files, &$form, &$errors) {
+  if (($formName == 'CRM_Contact_Form_Contact') || $formName == 'CRM_Contact_Form_Inline_CommunicationPreferences') {
+    if (($fields['preferred_language'] == NULL) || empty($fields['preferred_language'])) {
+      $errors['preferred_language'] = E::ts('%1 is a required field.', [1 => 'preferred_language']);
+    }
+  }
 }
 
 /**
@@ -229,6 +245,17 @@ function mods_civicrm_navigationMenu(&$menu) {
         'separator' => 0,
     ));
   }
+
+  // add paper form link
+  _mods_civix_insert_navigation_menu($menu, 'Memberships', array(
+      'label' => E::ts('Paper Form'),
+      'name' => 'membership_paperform',
+      'url' => 'civicrm/member/paperform',
+      'permission' => 'edit memberships',
+      'operator' => 'OR',
+      'separator' => 0,
+  ));
+
   _mods_civix_navigationMenu($menu);
 }
 
@@ -287,51 +314,65 @@ function mods_civicrm_apiWrappers(&$wrappers, $apiRequest) {
  * Implements hook_civicrm_pre
  */
 function mods_civicrm_pre($op, $objectName, $id, &$params) {
-  $CUSTOM_FIELD_ID = 102; // TODO: dynamic?
+  // Issue a warning if somebody edits a contact with an active membership
+  if ((!empty($id) && $op == 'edit') &&
+      ($objectName == 'Individual' || $objectName == 'Organization' || $objectName == 'Household')) {
+
+    CRM_Mods_CardTitle::showCardTitleShouldBeAdjustedWarning($id, $params);
+  }
+}
+
+
+/**
+ * Implements hook_civicrm_post
+ */
+function mods_civicrm_post($op, $objectName, $objectId, &$objectRef) {
   if ($op == 'create' && $objectName == 'Membership') {
+
+    // make sure we don't cause a recursion
+    static $disable_card_title_update = false;
+    if ($disable_card_title_update) return;
+
+    // make sure the card title field is there
+    $CUSTOM_FIELD_ID = CRM_Mods_CardTitle::getCardTitleFieldID();
+    if (!$CUSTOM_FIELD_ID) return;
+    $title_field = "custom_{$CUSTOM_FIELD_ID}";
+
+
+    // check if it's empty and
     try {
-      // somebody is creating a new membership
+      $membership = civicrm_api3('Membership', 'getsingle', [
+          'id'     => $objectId,
+          'return' => "{$title_field},id,contact_id"
+      ]);
 
-      if (!empty($params['custom'][$CUSTOM_FIELD_ID][-1]['value'])) {
-        // this field is already set by the user...
-        return;
-      }
-
-      // field is empty -> calculate value
-      $field_list = ['formal_title','first_name','last_name'];
-      $contact = civicrm_api3('Contact', 'getsingle', [
-          'id'     => $params['contact_id'],
-          'return' => implode(',', $field_list) . ',contact_type,display_name']);
-      $pieces = [];
-      if ($contact['contact_type'] == 'Individual') {
-        foreach ($field_list as $field) {
-          if (!empty($contact[$field])) {
-            $pieces[] = $contact[$field];
+      // if field is empty -> calculate new value
+      if (empty($membership[$title_field])) {
+        $field_list = ['formal_title','first_name','last_name'];
+        $contact = civicrm_api3('Contact', 'getsingle', [
+            'id'     => $membership['contact_id'],
+            'return' => implode(',', $field_list) . ',contact_type,display_name']);
+        $pieces = [];
+        if ($contact['contact_type'] == 'Individual') {
+          foreach ($field_list as $field) {
+            if (!empty($contact[$field])) {
+              $pieces[] = $contact[$field];
+            }
           }
+        } else {
+          $pieces[] = $contact['display_name'];
         }
-      } else {
-        $pieces[] = $contact['display_name'];
-      }
-      $params['custom'][$CUSTOM_FIELD_ID][-1]['value'] = trim(implode(' ', $pieces));
 
+        // set new title
+        $disable_card_title_update = true;
+        civicrm_api3('Membership', 'create', [
+            'id'         => $objectId,
+            $title_field => trim(implode(' ', $pieces))
+        ]);
+      }
     } catch (Exception $ex) {
       // something went wrong
       CRM_Core_Error::debug_log_message("mods: Error while setting ProVeg Card Title: " . $ex->getMessage());
     }
   }
 }
-
-//function mods_civicrm_alterMailParams(&$params, $context) {
-//
-//  if (!isset($params['headers']['X-MJ-EventPayload'])) {
-//    return json_encode([
-//      'jobId' => (int) CRM_Utils_Array::value('job_id', $params),
-//      'activityId' => (int) CRM_Utils_Array::value('custom-activity-id', $params),
-//      'campaignId' => (int) CRM_Utils_Array::value('custom-campaign-id', $params),
-//    ]);
-//    CRM_Core_Error::debug_log_message("[systopia debug alter Mailer @ com.proveg.mods] empty" . json_encode($params));
-//  }
-//
-//  CRM_Core_Error::debug_log_message("[systopia debug alter Mailer @ com.proveg.mods] replaced" . json_encode($params));
-//
-//}
