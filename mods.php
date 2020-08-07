@@ -50,6 +50,17 @@ function mods_civicrm_modify_txmessage(&$txmessage, $info, $creditor) {
   $txmessage = CRM_Mods_SepaMandate::generateTxMessage($info, $creditor);
 }
 
+function mods_civicrm_searchTasks($objectType, &$tasks) {
+  // add "Anonymise contributions" task to contact list:
+  if ($objectType == 'contact') {
+    $tasks[] = [
+      'title' => E::ts('Anonymise contributions'),
+      'class' => 'CRM_Mods_Form_Task_ContributionAnonymiser',
+      'result' => false
+    ];
+  }
+}
+
 ///**
 // * Implements CiviSCRM hook to inject JS
 // */
@@ -272,6 +283,23 @@ function mods_civicrm_buildForm($formName, &$form) {
 }
 
 /**
+ * Implements hook_civicrm_postProcess().
+ * @param $formName
+ * @param $form
+ * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_postProcess/
+ */
+function mods_civicrm_postProcess($formName, &$form) {
+  switch ($formName) {
+    case 'CRM_Profile_Form_Edit':
+      $logger = new CRM_Mods_SubscriptionLogger();
+      $logger->log_subscription($form);
+      break;
+    default:
+      return;
+  }
+}
+
+/**
  * Implements mods_civicrm_gdprx_postConsent().
  *
  * @see https://github.com/systopia/de.systopia.gdprx/issues/9
@@ -287,6 +315,9 @@ function mods_civicrm_apiWrappers(&$wrappers, $apiRequest) {
   if ($apiRequest['entity'] == 'SepaMandate'
       && in_array($apiRequest['action'], ['create', 'createfull'])) {
     $wrappers[] = new CRM_Mods_InternationalMandateWrapper();
+  }
+  if ($apiRequest['entity'] == 'MailingEventConfirm' && $apiRequest['action'] == 'create') {
+    $wrappers[] = new CRM_Mods_MailingEventConfirmWrapper();
   }
 }
 

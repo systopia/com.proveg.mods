@@ -1,0 +1,19 @@
+{*-------------------------------------------------------+
+| SYSTOPIA MailingTools Extension                        |
+| Copyright (C) 2019 SYSTOPIA                            |
+| Author: P.Batroff (batroff@systopia.de)                |
++--------------------------------------------------------+
+| This program is released as free software under the    |
+| Affero GPL license. You can redistribute it and/or     |
+| modify it under the terms of this license which you    |
+| can read by viewing the included agpl.txt or online    |
+| at www.gnu.org/licenses/agpl.html. Removal of this     |
+| copyright header is strictly prohibited without        |
+| written permission from the original author(s).        |
++-------------------------------------------------------*}
+
+
+{htxt id="id-mod-logging-activation"}
+  <p>{ts domain="com.proveg.mods"}This option activates a logging option for Double Opt-In Email Self Service. All users filling the form will be logged to '[civicrm-files]/ConfigAndLog/proVegCustomLogging.log' {/ts}</p>
+  <p>{ts domain="com.proveg.mods"}Logging Fields are for the form submit: email, group_id, hash. When the Subscription is confirmed, contact_id, hash and group_id is logged.{/ts}</p>
+{/htxt}
