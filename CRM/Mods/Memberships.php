@@ -102,7 +102,7 @@ class CRM_Mods_Memberships {
    */
   public static function calculateStartDate($init_date) {
     // make sure it's at least 14 days from now
-    $start_date = max(strtotime($init_date), strtotime("now + 14 days"));
+    $start_date = max(strtotime($init_date), strtotime("now + 10 days"));
 
     // move forward until 1st of month
     while (date('j', $start_date) > 1) {
