@@ -112,17 +112,6 @@ function mods_civicrm_enable() {
 }
 
 /**
- * Implements hook_civicrm_entityTypes().
- *
- * Declare entity types provided by this module.
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_entityTypes
- */
-function mods_civicrm_entityTypes(&$entityTypes) {
-  _mods_civix_civicrm_entityTypes($entityTypes);
-}
-
-/**
  * Add ME Menu (PV-7673)
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_navigationMenu
