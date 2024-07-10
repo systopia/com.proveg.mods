@@ -278,7 +278,7 @@ function mods_civicrm_post($op, $objectName, $objectId, &$objectRef) {
       }
     } catch (Exception $ex) {
       // something went wrong
-      CRM_Core_Error::debug_log_message("mods: Error while setting ProVeg Card Title: " . $ex->getMessage());
+      Civi::log()->debug("mods: Error while setting ProVeg Card Title: " . $ex->getMessage());
     }
   }
 }

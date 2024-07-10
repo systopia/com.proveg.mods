@@ -23,7 +23,7 @@ class CRM_Mods_MailingEventConfirmWrapper implements API_Wrapper {
    */
   public function fromApiInput($apiRequest) {
     if (!isset($apiRequest['params']['contact_id']) || !isset($apiRequest['params']['subscribe_id']) || !isset($apiRequest['params']['hash'])) {
-      CRM_Core_Error::debug_log_message("[CRM_Mods_MailingEventConfirmWrapper] Missing parameters. Not logging Request.");
+      Civi::log()->debug("[CRM_Mods_MailingEventConfirmWrapper] Missing parameters. Not logging Request.");
       return $apiRequest;
     }
     $contact_id = $apiRequest['params']['contact_id'];
@@ -37,7 +37,7 @@ class CRM_Mods_MailingEventConfirmWrapper implements API_Wrapper {
       $hash
     );
     if (!$se) {
-      CRM_Core_Error::debug_log_message("[CRM_Mods_MailingEventConfirmWrapper] Event not found. Not logging request.");
+      Civi::log()->debug("[CRM_Mods_MailingEventConfirmWrapper] Event not found. Not logging request.");
       return $apiRequest;
     }
     $group_id = $se->group_id;

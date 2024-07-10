@@ -62,8 +62,8 @@ class CRM_Mods_Gdpr {
       WHERE contact.id = {$contact_id}");
     $last_opt_out->fetch();
 
-    CRM_Core_Error::debug_log_message(json_encode($last_opt_in));
-    CRM_Core_Error::debug_log_message(json_encode($last_opt_out));
+    Civi::log()->debug(json_encode($last_opt_in));
+    Civi::log()->debug(json_encode($last_opt_out));
 
     $contact_update = ['id' => $contact_id];
     foreach (self::$fields as $query_field => $contact_field) {
@@ -77,7 +77,7 @@ class CRM_Mods_Gdpr {
     }
 
     // run the update
-    CRM_Core_Error::debug_log_message("Contact.update: " . json_encode($contact_update));
+    Civi::log()->debug("Contact.update: " . json_encode($contact_update));
     civicrm_api3('Contact', 'create', $contact_update);
   }
 }
