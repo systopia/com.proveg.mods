@@ -229,8 +229,6 @@ function mods_civicrm_pre($op, $objectName, $id, &$params) {
   }
 
   if($op =='create' && $objectName == 'Membership') {
-    echo "hello world";
-    return;
     if (empty($params['start_date'])) {
       $params['start_date'] = CRM_Mods_Memberships::calculateStartDate(strtotime("now"));
     } else {
