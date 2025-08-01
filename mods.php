@@ -227,6 +227,17 @@ function mods_civicrm_pre($op, $objectName, $id, &$params) {
 
     CRM_Mods_CardTitle::showCardTitleShouldBeAdjustedWarning($id, $params);
   }
+
+  if($op =='create' && $objectName == 'Membership') {
+    echo "hello world";
+    return;
+    if (empty($params['start_date'])) {
+      $params['start_date'] = CRM_Mods_Memberships::calculateStartDate(strtotime("now"));
+    } else {
+      $params['start_date'] = CRM_Mods_Memberships::calculateStartDate($params['start_date']);
+    }
+    $params['end_date'] = CRM_Mods_Memberships::calculateEndDate($params['start_date']);
+  }
 }
 
 /**

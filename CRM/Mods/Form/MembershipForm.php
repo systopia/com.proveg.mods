@@ -330,9 +330,11 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
 
     // create membership
     $start_date = CRM_Mods_Memberships::calculateStartDate($values['join_date']);
+
+    // use initial date here - will be updated with calculateStartDate in `mods_civicrm_pre`
     $membership_data = [
         'contact_id' => $contact['id'],
-        'start_date' => $start_date,
+        'start_date' => $values['join_date'],
         'source'     => self::MEMBERSHIP_FORM_SOURCE,
     ];
     foreach (['join_date', 'membership_type_id', 'campaign_id'] as $attribute) {
