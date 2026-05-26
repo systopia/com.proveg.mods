@@ -18,7 +18,8 @@ use CRM_Mods_ExtensionUtil as E;
  * A custom contact search
  */
 class CRM_Mods_Form_Search_MembershipNumber extends CRM_Contact_Form_Search_Custom_Base implements CRM_Contact_Form_Search_Interface {
-  function __construct(&$formValues) {
+
+  public function __construct(&$formValues) {
     parent::__construct($formValues);
   }
 
@@ -28,7 +29,7 @@ class CRM_Mods_Form_Search_MembershipNumber extends CRM_Contact_Form_Search_Cust
    * @param CRM_Core_Form $form modifiable
    * @return void
    */
-  function buildForm(&$form) {
+  public function buildForm(&$form) {
     CRM_Utils_System::setTitle(E::ts('Membership Number Search'));
 
     $form->add('text',
@@ -37,17 +38,17 @@ class CRM_Mods_Form_Search_MembershipNumber extends CRM_Contact_Form_Search_Cust
       TRUE
     );
 
-    $form->assign('elements', array('membership_number'));
+    $form->assign('elements', ['membership_number']);
   }
 
   /**
    * Get a list of summary data points
    *
-   * @return mixed; NULL or array with keys:
-   *  - summary: string
-   *  - total: numeric
+   * @return null NULL or array with keys:
+   *   - summary: string
+   *   - total: numeric
    */
-  function summary() {
+  public function summary() {
     return NULL;
   }
 
@@ -56,16 +57,16 @@ class CRM_Mods_Form_Search_MembershipNumber extends CRM_Contact_Form_Search_Cust
    *
    * @return array, keys are printable column headers and values are SQL column names
    */
-  function &columns() {
+  public function &columns() {
     // return by reference
-    $columns = array(
-        E::ts('Name')              => 'sort_name',
-        E::ts('Membership Number') => 'reference',
-        E::ts('Membership Status') => 'status',
-        E::ts('Membership ID')     => 'membership_id',
+    $columns = [
+      E::ts('Name')              => 'sort_name',
+      E::ts('Membership Number') => 'reference',
+      E::ts('Membership Status') => 'status',
+      E::ts('Membership ID')     => 'membership_id',
         //      E::ts('Contact Id') => 'contact_id',
-        E::ts('Contact Type')      => 'contact_type',
-    );
+      E::ts('Contact Type')      => 'contact_type',
+    ];
     return $columns;
   }
 
@@ -79,7 +80,7 @@ class CRM_Mods_Form_Search_MembershipNumber extends CRM_Contact_Form_Search_Cust
    * @param bool $justIDs
    * @return string, sql
    */
-  function all($offset = 0, $rowcount = 0, $sort = NULL, $includeContactIDs = FALSE, $justIDs = FALSE) {
+  public function all($offset = 0, $rowcount = 0, $sort = NULL, $includeContactIDs = FALSE, $justIDs = FALSE) {
     // delegate to $this->sql(), $this->select(), $this->from(), $this->where(), etc.
     return $this->sql($this->select(), $offset, $rowcount, $sort, $includeContactIDs, NULL);
   }
@@ -89,7 +90,7 @@ class CRM_Mods_Form_Search_MembershipNumber extends CRM_Contact_Form_Search_Cust
    *
    * @return string, sql fragment with SELECT arguments
    */
-  function select() {
+  public function select() {
     return "
       contact_a.id                     as contact_id,
       CONCAT('[', membership.id, ']')  as membership_id,
@@ -105,13 +106,13 @@ class CRM_Mods_Form_Search_MembershipNumber extends CRM_Contact_Form_Search_Cust
    *
    * @return string, sql fragment with FROM and JOIN clauses
    */
-  function from() {
-    return "
+  public function from() {
+    return '
       FROM      civicrm_contact contact_a
       LEFT JOIN civicrm_membership membership      ON membership.contact_id = contact_a.id
       LEFT JOIN civicrm_membership_status status   ON status.id = membership.status_id
       LEFT JOIN civicrm_value_membership_info info ON info.entity_id = membership.id
-    ";
+    ';
   }
 
   /**
@@ -120,10 +121,10 @@ class CRM_Mods_Form_Search_MembershipNumber extends CRM_Contact_Form_Search_Cust
    * @param bool $includeContactIDs
    * @return string, sql fragment with conditional expressions
    */
-  function where($includeContactIDs = FALSE) {
-    $params = array();
-    $where = "info.reference LIKE %1";
-    $params[1] = array($this->_formValues['membership_number'], 'String');
+  public function where($includeContactIDs = FALSE) {
+    $params = [];
+    $where = 'info.reference LIKE %1';
+    $params[1] = [$this->_formValues['membership_number'], 'String'];
     return $this->whereClause($where, $params);
   }
 
@@ -132,7 +133,7 @@ class CRM_Mods_Form_Search_MembershipNumber extends CRM_Contact_Form_Search_Cust
    *
    * @return string, template path (findable through Smarty template path)
    */
-  function templateFile() {
+  public function templateFile() {
     return 'CRM/Contact/Form/Search/Custom.tpl';
   }
 
@@ -142,7 +143,8 @@ class CRM_Mods_Form_Search_MembershipNumber extends CRM_Contact_Form_Search_Cust
    * @param array $row modifiable SQL result row
    * @return void
    */
-  function alterRow(&$row) {
-//    $row['sort_name'] .= ' ( altered )';
+  public function alterRow(&$row) {
+    //    $row['sort_name'] .= ' ( altered )';
   }
+
 }

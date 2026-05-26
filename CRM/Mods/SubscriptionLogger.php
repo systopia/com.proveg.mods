@@ -27,8 +27,7 @@ class CRM_Mods_SubscriptionLogger {
   private $hash;
   private $group_id;
 
-  private $logging_types = ["ProVegApi", "MailingEventConfirm"];
-
+  private $logging_types = ['ProVegApi', 'MailingEventConfirm'];
 
   /**
    * CRM_Mods_SubscriptionLogger constructor.
@@ -40,7 +39,7 @@ class CRM_Mods_SubscriptionLogger {
    */
   public function __construct($contact_id, $hash, $group_id, $email = NULL) {
     $config = CRM_Mods_Config::singleton();
-    $file = CRM_Core_Config::singleton()->configAndLogDir . $config->get_log_file_name() .'.log';
+    $file = CRM_Core_Config::singleton()->configAndLogDir . $config->get_log_file_name() . '.log';
     $this->_log_file = fopen($file, 'a');
 
     $this->contact_id = $contact_id;
@@ -50,7 +49,6 @@ class CRM_Mods_SubscriptionLogger {
       $this->email = $email;
     }
   }
-
 
   /**
    * @param $type
@@ -75,12 +73,12 @@ class CRM_Mods_SubscriptionLogger {
    * @param $message
    */
   private function log_to_file($type, $message) {
-    fputs($this->_log_file, date('Y-m-d h:i:s'));
-    fputs($this->_log_file, ' ');
-    fputs($this->_log_file, "Action: " . $type);
-    fputs($this->_log_file, ' ');
-    fputs($this->_log_file, $message);
-    fputs($this->_log_file, "\n");
+    fwrite($this->_log_file, date('Y-m-d h:i:s'));
+    fwrite($this->_log_file, ' ');
+    fwrite($this->_log_file, 'Action: ' . $type);
+    fwrite($this->_log_file, ' ');
+    fwrite($this->_log_file, $message);
+    fwrite($this->_log_file, "\n");
   }
 
 }

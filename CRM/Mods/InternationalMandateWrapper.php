@@ -40,11 +40,13 @@ class CRM_Mods_InternationalMandateWrapper implements API_Wrapper {
       if (!empty($apiRequest['params']['iban'])) {
         // iban is submitted
         $iban = $apiRequest['params']['iban'];
-      } elseif (!empty($apiRequest['params']['id'])) {
+      }
+      elseif (!empty($apiRequest['params']['id'])) {
         // ID is submitted
         $iban = civicrm_api3('SepaMandate', 'getvalue', [
-            'id'     => $apiRequest['params']['id'],
-            'return' => 'iban']);
+          'id'     => $apiRequest['params']['id'],
+          'return' => 'iban',
+        ]);
       }
 
       // no if we have an iban, do the check
@@ -72,4 +74,5 @@ class CRM_Mods_InternationalMandateWrapper implements API_Wrapper {
   public function toApiOutput($apiRequest, $result) {
     return $result;
   }
+
 }

@@ -21,13 +21,14 @@ use CRM_Xdedupe_ExtensionUtil as E;
  */
 class CRM_Xdedupe_Picker_YoungestISL extends CRM_Xdedupe_Picker {
 
-  static $isl_pattern = '/^ISL-(?<isl_number>[0-9]+)$/';
+  protected static $isl_pattern = '/^ISL-(?<isl_number>[0-9]+)$/';
+
   /**
    * get the name of the finder
    * @return string name
    */
   public function getName() {
-    return E::ts("Youngest (by ISL ID)");
+    return E::ts('Youngest (by ISL ID)');
   }
 
   /**
@@ -35,7 +36,7 @@ class CRM_Xdedupe_Picker_YoungestISL extends CRM_Xdedupe_Picker {
    * @return string name
    */
   public function getHelp() {
-    return E::ts("If all contacts have an ISL-XXXX external identifier, it picks the contact with the highest ID");
+    return E::ts('If all contacts have an ISL-XXXX external identifier, it picks the contact with the highest ID');
   }
 
   /**
@@ -47,9 +48,9 @@ class CRM_Xdedupe_Picker_YoungestISL extends CRM_Xdedupe_Picker {
   public function selectMainContact($contact_ids) {
     // load all external IDs
     $contacts = civicrm_api3('Contact', 'get', [
-        'id'           => ['IN' => $contact_ids],
-        'option.limit' => 0,
-        'return'       => 'id,external_identifier'
+      'id'           => ['IN' => $contact_ids],
+      'option.limit' => 0,
+      'return'       => 'id,external_identifier',
     ]);
 
     // have a look at all of them
@@ -63,7 +64,8 @@ class CRM_Xdedupe_Picker_YoungestISL extends CRM_Xdedupe_Picker {
           $max_isl_number = $current_isl_number;
           $main_contact_id = $contact['id'];
         }
-      } else {
+      }
+      else {
         // this is not a ISL-xxx identifier, abort!
         return NULL;
       }
@@ -71,4 +73,5 @@ class CRM_Xdedupe_Picker_YoungestISL extends CRM_Xdedupe_Picker {
 
     return $main_contact_id;
   }
+
 }

@@ -8,6 +8,7 @@ use CRM_Mods_ExtensionUtil as E;
  * @see https://wiki.civicrm.org/confluence/display/CRMDOC/QuickForm+Reference
  */
 class CRM_Mods_Form_Settings extends CRM_Core_Form {
+
   public function buildQuickForm() {
 
     $config = CRM_Mods_Config::singleton();
@@ -21,13 +22,13 @@ class CRM_Mods_Form_Settings extends CRM_Core_Form {
       E::ts('Activate Custom Subscription Logging')
     );
 
-    $this->addButtons(array(
-      array(
+    $this->addButtons([
+      [
         'type' => 'submit',
         'name' => E::ts('Submit'),
         'isDefault' => TRUE,
-      ),
-    ));
+      ],
+    ]);
 
     // set default values
     $this->setDefaults($current_values);

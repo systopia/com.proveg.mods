@@ -23,7 +23,7 @@ class CRM_Mods_Config {
   private static $singleton = NULL;
   private static $settings  = NULL;
 
-  private static $log_file_name = "ProvegMod_SubscriptionLog";
+  private static $log_file_name = 'ProvegMod_SubscriptionLog';
 
   /**
    * get the config instance

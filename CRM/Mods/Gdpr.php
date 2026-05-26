@@ -20,10 +20,11 @@ use CRM_Mods_ExtensionUtil as E;
 class CRM_Mods_Gdpr {
 
   protected static $fields = [
-      'postal' => 'do_not_mail',
-      'email'  => 'do_not_email',
-      'phone'  => 'do_not_phone',
-      'newsl'  => 'is_opt_out'];
+    'postal' => 'do_not_mail',
+    'email'  => 'do_not_email',
+    'phone'  => 'do_not_phone',
+    'newsl'  => 'is_opt_out',
+  ];
 
   /**
    * Recalculate and update the privacy settings of the given contact
@@ -67,17 +68,19 @@ class CRM_Mods_Gdpr {
 
     $contact_update = ['id' => $contact_id];
     foreach (self::$fields as $query_field => $contact_field) {
-      if (  empty($last_opt_in->$query_field)     /* no opt-in */
+      if (empty($last_opt_in->$query_field)     /* no opt-in */
          || (!empty($last_opt_out->$query_field)  /* OR opt-out after opt-in */
                && $last_opt_in->$query_field < $last_opt_out->$query_field)) {
         $contact_update[$contact_field] = 1;
-      } else {
+      }
+      else {
         $contact_update[$contact_field] = 0;
       }
     }
 
     // run the update
-    Civi::log()->debug("Contact.update: " . json_encode($contact_update));
+    Civi::log()->debug('Contact.update: ' . json_encode($contact_update));
     civicrm_api3('Contact', 'create', $contact_update);
   }
+
 }
