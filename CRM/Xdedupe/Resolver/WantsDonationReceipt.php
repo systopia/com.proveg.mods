@@ -35,7 +35,6 @@ class CRM_Xdedupe_Resolver_WantsDonationReceipt extends CRM_Xdedupe_Resolver_Sim
 
   public function __construct($merge) {
     parent::__construct($merge, 'custom_1');
-    //parent::__construct($merge, 'custom_37');
   }
 
   /**

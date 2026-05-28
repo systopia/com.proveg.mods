@@ -42,6 +42,18 @@
         <exclude-pattern>mods\.php$</exclude-pattern>
     </rule>
 
+    <rule ref="PSR1.Files.SideEffects.FoundWithSymbols">
+        <exclude-pattern>mods\.php$</exclude-pattern>
+    </rule>
+
+    <rule ref="Drupal.Commenting.HookComment.HookCommentFormat">
+        <exclude-pattern>mods\.php$</exclude-pattern>
+    </rule>
+
+    <rule ref="Generic.Metrics.NestingLevel.TooHigh">
+        <exclude-pattern>mods\.php$</exclude-pattern>
+    </rule>
+
     <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
     <rule ref="Generic.CodeAnalysis.EmptyStatement">
         <exclude name="Generic.CodeAnalysis.EmptyStatement.DetectedCatch"/>

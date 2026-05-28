@@ -21,7 +21,7 @@ use CRM_Mods_ExtensionUtil as E;
  *  - crete and link SEPA mandate
  */
 class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
-  const MEMBERSHIP_FORM_SOURCE = 'Paper Form';
+  public const MEMBERSHIP_FORM_SOURCE = 'Paper Form';
 
   public function buildQuickForm() {
 
@@ -263,7 +263,11 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     $contact_data = [
       'contact_type' => 'Individual',
     ];
-    foreach (['prefix_id', 'first_name', 'last_name', 'birth_date', 'email', 'gender_id', 'preferred_language'] as $attribute) {
+    $contact_attributes = [
+      'prefix_id', 'first_name', 'last_name', 'birth_date',
+      'email', 'gender_id', 'preferred_language',
+    ];
+    foreach ($contact_attributes as $attribute) {
       $contact_data[$attribute] = $values[$attribute];
     }
     // call api
@@ -308,7 +312,11 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
         $this->attachFile($_FILES['contract_file'], $activity['id']);
       }
       catch (Exception $ex) {
-        CRM_Core_Session::setStatus(E::ts("Couldn't create contract activity: %1", [1 => $ex->getMessage()]), E::ts('Activities Missing'), 'error');
+        CRM_Core_Session::setStatus(
+          E::ts("Couldn't create contract activity: %1", [1 => $ex->getMessage()]),
+          E::ts('Activities Missing'),
+          'error'
+        );
       }
     }
 
@@ -317,7 +325,10 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
       if (!empty($values['campaign_id'])) {
         civicrm_api3('Activity', 'create', [
           'activity_type_id'   => 'contact_source',
-          'subject'            => civicrm_api3('Campaign', 'getvalue', ['id' => $values['campaign_id'], 'return' => 'title']),
+          'subject'            => civicrm_api3('Campaign', 'getvalue', [
+            'id' => $values['campaign_id'],
+            'return' => 'title',
+          ]),
           'activity_date_time' => date('YmdHis'),
           'target_id'          => $contact['id'],
           'campaign_id'        => $values['campaign_id'],
@@ -327,7 +338,11 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
       }
     }
     catch (Exception $ex) {
-      CRM_Core_Session::setStatus(E::ts("Couldn't create source activity: %1", [1 => $ex->getMessage()]), E::ts('Activities Missing'), 'error');
+      CRM_Core_Session::setStatus(
+        E::ts("Couldn't create source activity: %1", [1 => $ex->getMessage()]),
+        E::ts('Activities Missing'),
+        'error'
+      );
     }
 
     // create membership

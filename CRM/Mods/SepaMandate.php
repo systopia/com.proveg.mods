@@ -25,7 +25,18 @@ class CRM_Mods_SepaMandate {
 
   /**
    * list of Easter Sunday dates */
-  protected static $EASTER_SUNDAYS = ['2018-04-01', '2019-04-21', '2020-04-12', '2021-04-04', '2022-04-14', '2023-04-09', '2024-03-31', '2025-04-20', '2026-04-05', '2027-03-28'];
+  protected static $EASTER_SUNDAYS = [
+    '2018-04-01',
+    '2019-04-21',
+    '2020-04-12',
+    '2021-04-04',
+    '2022-04-14',
+    '2023-04-09',
+    '2024-03-31',
+    '2025-04-20',
+    '2026-04-05',
+    '2027-03-28',
+  ];
 
   /**
    * there are 4 easter related days: -2 (Good Friday), +1 (Easter Monday), +39 (Ascension Day), +50 (Whit Monday) */
@@ -48,7 +59,7 @@ class CRM_Mods_SepaMandate {
       return FALSE;
     }
 
-    // check for (German) static holidays
+    // German static holidays.
     $date = substr($collection_date, 5);
     if (in_array($date, self::$STATIC_HOLIDAYS)) {
       return FALSE;
@@ -75,7 +86,11 @@ class CRM_Mods_SepaMandate {
       }
     }
     else {
-      CRM_Core_Session::setStatus(E::ts('Easter sunday not known for year %1. Please contact SYSTOPIA.', [1 => $year]), E::ts('Bank holiday list outdated'), 'warning');
+      CRM_Core_Session::setStatus(
+        E::ts('Easter sunday not known for year %1. Please contact SYSTOPIA.', [1 => $year]),
+        E::ts('Bank holiday list outdated'),
+        'warning'
+      );
     }
 
     // it all checks out, we can collect on this date
@@ -96,7 +111,11 @@ class CRM_Mods_SepaMandate {
         'return' => 'financial_type_id,frequency_interval,frequency_unit',
       ]);
       $financial_type = self::getFinancialTypeLabel($rcontribution['financial_type_id']);
-      $payment_frequency = CRM_Utils_SepaOptionGroupTools::getFrequencyText($rcontribution['frequency_interval'], $rcontribution['frequency_unit'], TRUE);
+      $payment_frequency = CRM_Utils_SepaOptionGroupTools::getFrequencyText(
+        $rcontribution['frequency_interval'],
+        $rcontribution['frequency_unit'],
+        TRUE
+      );
       // replace Umlaut in 'jährlich'
       $payment_frequency = preg_replace('/ä/', 'ae', $payment_frequency);
       return "{$financial_type} {$payment_frequency}. ProVeg sagt vielen Dank.";
@@ -173,7 +192,9 @@ class CRM_Mods_SepaMandate {
 
     // find all used references with that prefix
     $highest_index = 0;
-    $query = CRM_Core_DAO::executeQuery("SELECT reference FROM civicrm_sdd_mandate WHERE reference LIKE '{$reference}-%';");
+    $query = CRM_Core_DAO::executeQuery(
+      "SELECT reference FROM civicrm_sdd_mandate WHERE reference LIKE '{$reference}-%';"
+    );
     while ($query->fetch()) {
       if (preg_match("#^{$reference}-(?P<index>[0-9]{2,3})$#", $query->reference, $match)) {
         $index = (int) $match['index'];

@@ -20,7 +20,7 @@ use CRM_Mods_ExtensionUtil as E;
 class CRM_Mods_Memberships {
 
   // adjust if needed
-  const FEE_TYPE_FIELD = 'custom_27';
+  public const FEE_TYPE_FIELD = 'custom_27';
 
   /**
    * General new membership post processing
@@ -58,12 +58,17 @@ class CRM_Mods_Memberships {
         if ($recurring_contribution['frequency_unit'] == 'year') {
           $every_n_months *= 12;
         }
-        $membership_update["custom_{$annual_field_id}"] = ((float) $recurring_contribution['amount']) * 12.0 / (float) $every_n_months;
+        $membership_update["custom_{$annual_field_id}"] =
+          ((float) $recurring_contribution['amount']) * 12.0 / (float) $every_n_months;
       }
     }
     catch (Exception $ex) {
       if ($ui_present) {
-        CRM_Core_Session::setStatus(E::ts('Custom field for annual membership fee not found'), E::ts('Custom Field Not Found'), 'warning');
+        CRM_Core_Session::setStatus(
+          E::ts('Custom field for annual membership fee not found'),
+          E::ts('Custom Field Not Found'),
+          'warning'
+        );
       }
       else {
         Civi::log()->debug('MembershipPostprocess: ' . E::ts('Custom field for annual membership fee not found'));

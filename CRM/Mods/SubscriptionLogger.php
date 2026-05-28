@@ -56,7 +56,10 @@ class CRM_Mods_SubscriptionLogger {
    */
   public function log_subscription($type) {
     if (!in_array($type, $this->logging_types)) {
-      Civi::log()->debug("[CRM_Mods_SubscriptionLogger] Invalid logging Type '{$type}'. Must be in " . json_encode($this->logging_types));
+      Civi::log()->debug(
+        "[CRM_Mods_SubscriptionLogger] Invalid logging Type '{$type}'. Must be in "
+        . json_encode($this->logging_types)
+      );
       return;
     }
     $message = "[{$this->contact_id}] >> Group_id: {$this->group_id}, Hash: {$this->hash}";

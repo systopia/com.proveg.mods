@@ -17,7 +17,8 @@ use CRM_Mods_ExtensionUtil as E;
 /**
  * A custom contact search
  */
-class CRM_Mods_Form_Search_MembershipNumber extends CRM_Contact_Form_Search_Custom_Base implements CRM_Contact_Form_Search_Interface {
+class CRM_Mods_Form_Search_MembershipNumber extends CRM_Contact_Form_Search_Custom_Base implements
+    CRM_Contact_Form_Search_Interface {
 
   public function __construct(&$formValues) {
     parent::__construct($formValues);
@@ -64,7 +65,6 @@ class CRM_Mods_Form_Search_MembershipNumber extends CRM_Contact_Form_Search_Cust
       E::ts('Membership Number') => 'reference',
       E::ts('Membership Status') => 'status',
       E::ts('Membership ID')     => 'membership_id',
-        //      E::ts('Contact Id') => 'contact_id',
       E::ts('Contact Type')      => 'contact_type',
     ];
     return $columns;
@@ -81,7 +81,6 @@ class CRM_Mods_Form_Search_MembershipNumber extends CRM_Contact_Form_Search_Cust
    * @return string, sql
    */
   public function all($offset = 0, $rowcount = 0, $sort = NULL, $includeContactIDs = FALSE, $justIDs = FALSE) {
-    // delegate to $this->sql(), $this->select(), $this->from(), $this->where(), etc.
     return $this->sql($this->select(), $offset, $rowcount, $sort, $includeContactIDs, NULL);
   }
 
@@ -144,7 +143,6 @@ class CRM_Mods_Form_Search_MembershipNumber extends CRM_Contact_Form_Search_Cust
    * @return void
    */
   public function alterRow(&$row) {
-    //    $row['sort_name'] .= ' ( altered )';
   }
 
 }

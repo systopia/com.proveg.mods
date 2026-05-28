@@ -22,7 +22,11 @@ class CRM_Mods_MailingEventConfirmWrapper implements API_Wrapper {
    * @return array|void
    */
   public function fromApiInput($apiRequest) {
-    if (!isset($apiRequest['params']['contact_id']) || !isset($apiRequest['params']['subscribe_id']) || !isset($apiRequest['params']['hash'])) {
+    if (
+      !isset($apiRequest['params']['contact_id'])
+      || !isset($apiRequest['params']['subscribe_id'])
+      || !isset($apiRequest['params']['hash'])
+    ) {
       Civi::log()->debug('[CRM_Mods_MailingEventConfirmWrapper] Missing parameters. Not logging Request.');
       return $apiRequest;
     }
