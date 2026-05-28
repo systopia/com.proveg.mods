@@ -81,5 +81,8 @@ jobs:
           composer composer-phpunit -- update --no-progress --optimize-autoloader
           composer composer-phpstan -- update --no-progress --optimize-autoloader
 
+      - name: Check out sibling extensions referenced by PHPStan
+        run: git clone --depth 1 https://github.com/systopia/de.systopia.xdedupe.git ../de.systopia.xdedupe
+
       - name: Run PHPStan
         run: composer phpstan -- analyse -c phpstan.ci.neon
