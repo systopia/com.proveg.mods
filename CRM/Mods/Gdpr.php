@@ -71,8 +71,8 @@ class CRM_Mods_Gdpr {
       WHERE contact.id = {$contact_id}");
     $last_opt_out->fetch();
 
-    Civi::log()->debug(json_encode($last_opt_in));
-    Civi::log()->debug(json_encode($last_opt_out));
+    Civi::log()->debug((string) json_encode($last_opt_in));
+    Civi::log()->debug((string) json_encode($last_opt_out));
 
     $contact_update = ['id' => $contact_id];
     foreach (self::$fields as $query_field => $contact_field) {
