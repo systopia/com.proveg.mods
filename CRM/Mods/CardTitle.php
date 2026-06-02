@@ -27,23 +27,39 @@ class CRM_Mods_CardTitle {
    */
   public static function showCardTitleShouldBeAdjustedWarning($contact_id, $contact_changes) {
     // somebody wants to edit a contact, check if it's any of the fields we monitor:
-    $fields_to_monitor = ['first_name', 'last_name', 'prefix_id', 'organization_name', 'household_name', 'formal_title'];
+    $fields_to_monitor = [
+      'first_name',
+      'last_name',
+      'prefix_id',
+      'organization_name',
+      'household_name',
+      'formal_title',
+    ];
     $fields_provided   = array_intersect($fields_to_monitor, array_keys($contact_changes));
     if (!empty($fields_provided) && CRM_Mods_Memberships::contactHasActiveMembership($contact_id)) {
       // something relevant was submitted. Load the previous data
       try {
-        $current_data = civicrm_api3('Contact', 'getsingle', ['id' => $contact_id, 'return' => implode(',', $fields_provided)]);
+        $current_data = civicrm_api3('Contact', 'getsingle', [
+          'id' => $contact_id,
+          'return' => implode(',', $fields_provided),
+        ]);
         foreach ($fields_provided as $field) {
           $current_value = CRM_Utils_Array::value($field, $current_data);
           $future_value  = $contact_changes[$field];
           if ($current_value != $future_value) {
             // there is a change
-            CRM_Core_Session::setStatus(E::ts("Don't forget to adjust the membership card title, if necessary."), E::ts("Update Card Title?"), 'warn');
-            break; // stop looking, one change is all it needs
+            CRM_Core_Session::setStatus(
+              E::ts("Don't forget to adjust the membership card title, if necessary."),
+              E::ts('Update Card Title?'),
+              'warn'
+            );
+            // stop looking, one change is all it needs
+            break;
           }
         }
-      } catch (Exception $ex) {
-        Civi::log()->debug("CardTitle check failed: " . $ex->getMessage());
+      }
+      catch (Exception $ex) {
+        Civi::log()->debug('CardTitle check failed: ' . $ex->getMessage());
       }
     }
   }
@@ -74,9 +90,13 @@ class CRM_Mods_CardTitle {
     static $membership_card_title_field_id = NULL;
     if ($membership_card_title_field_id === NULL) {
       try {
-        $membership_card_title_field_id = civicrm_api3('CustomField', 'getvalue', ['name' => 'membership_card_title', 'return' => 'id']);
-      } catch (Exception $ex) {
-        Civi::log()->warning("mods: Error accessing ProVeg Card Title: " . $ex->getMessage());
+        $membership_card_title_field_id = civicrm_api3('CustomField', 'getvalue', [
+          'name' => 'membership_card_title',
+          'return' => 'id',
+        ]);
+      }
+      catch (Exception $ex) {
+        Civi::log()->warning('mods: Error accessing ProVeg Card Title: ' . $ex->getMessage());
         $membership_card_title_field_id = 0;
       }
     }
@@ -89,10 +109,11 @@ class CRM_Mods_CardTitle {
    * @return string the default title
    */
   public static function calculateDefault($contact_id) {
-    $field_list = ['formal_title','first_name','last_name'];
+    $field_list = ['formal_title', 'first_name', 'last_name'];
     $contact = civicrm_api3('Contact', 'getsingle', [
-        'id'     => $contact_id,
-        'return' => implode(',', $field_list) . ',contact_type,display_name']);
+      'id'     => $contact_id,
+      'return' => implode(',', $field_list) . ',contact_type,display_name',
+    ]);
     $pieces = [];
     if ($contact['contact_type'] == 'Individual') {
       foreach ($field_list as $field) {
@@ -100,9 +121,11 @@ class CRM_Mods_CardTitle {
           $pieces[] = $contact[$field];
         }
       }
-    } else {
+    }
+    else {
       $pieces[] = $contact['display_name'];
     }
     return trim(implode(' ', $pieces));
   }
+
 }

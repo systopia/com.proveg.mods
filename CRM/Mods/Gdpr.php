@@ -20,10 +20,11 @@ use CRM_Mods_ExtensionUtil as E;
 class CRM_Mods_Gdpr {
 
   protected static $fields = [
-      'postal' => 'do_not_mail',
-      'email'  => 'do_not_email',
-      'phone'  => 'do_not_phone',
-      'newsl'  => 'is_opt_out'];
+    'postal' => 'do_not_mail',
+    'email'  => 'do_not_email',
+    'phone'  => 'do_not_phone',
+    'newsl'  => 'is_opt_out',
+  ];
 
   /**
    * Recalculate and update the privacy settings of the given contact
@@ -41,10 +42,14 @@ class CRM_Mods_Gdpr {
         MAX(phone.date)  AS phone,
         MAX(newsl.date)  AS newsl
       FROM civicrm_contact contact
-      LEFT JOIN civicrm_value_gdpr_consent postal ON postal.entity_id = contact.id AND postal.category = 22 AND postal.type IN (2,4,5)
-      LEFT JOIN civicrm_value_gdpr_consent email  ON email.entity_id  = contact.id AND email.category  = 20 AND email.type  IN (2,4,5)
-      LEFT JOIN civicrm_value_gdpr_consent phone  ON phone.entity_id  = contact.id AND phone.category  = 21 AND phone.type  IN (2,4,5)
-      LEFT JOIN civicrm_value_gdpr_consent newsl  ON newsl.entity_id  = contact.id AND newsl.category  = 23 AND newsl.type  IN (2,4,5)
+      LEFT JOIN civicrm_value_gdpr_consent postal ON postal.entity_id = contact.id
+        AND postal.category = 22 AND postal.type IN (2,4,5)
+      LEFT JOIN civicrm_value_gdpr_consent email  ON email.entity_id  = contact.id
+        AND email.category  = 20 AND email.type  IN (2,4,5)
+      LEFT JOIN civicrm_value_gdpr_consent phone  ON phone.entity_id  = contact.id
+        AND phone.category  = 21 AND phone.type  IN (2,4,5)
+      LEFT JOIN civicrm_value_gdpr_consent newsl  ON newsl.entity_id  = contact.id
+        AND newsl.category  = 23 AND newsl.type  IN (2,4,5)
       WHERE contact.id = {$contact_id}");
     $last_opt_in->fetch();
 
@@ -55,29 +60,35 @@ class CRM_Mods_Gdpr {
         MAX(phone.date)  AS phone,
         MAX(newsl.date)  AS newsl
       FROM civicrm_contact contact
-      LEFT JOIN civicrm_value_gdpr_consent postal ON postal.entity_id = contact.id AND postal.category = 22 AND postal.type IN (3,6)
-      LEFT JOIN civicrm_value_gdpr_consent email  ON email.entity_id  = contact.id AND email.category  = 20 AND email.type  IN (3,6)
-      LEFT JOIN civicrm_value_gdpr_consent phone  ON phone.entity_id  = contact.id AND phone.category  = 21 AND phone.type  IN (3,6)
-      LEFT JOIN civicrm_value_gdpr_consent newsl  ON newsl.entity_id  = contact.id AND newsl.category  = 23 AND newsl.type  IN (3,6)
+      LEFT JOIN civicrm_value_gdpr_consent postal ON postal.entity_id = contact.id
+        AND postal.category = 22 AND postal.type IN (3,6)
+      LEFT JOIN civicrm_value_gdpr_consent email  ON email.entity_id  = contact.id
+        AND email.category  = 20 AND email.type  IN (3,6)
+      LEFT JOIN civicrm_value_gdpr_consent phone  ON phone.entity_id  = contact.id
+        AND phone.category  = 21 AND phone.type  IN (3,6)
+      LEFT JOIN civicrm_value_gdpr_consent newsl  ON newsl.entity_id  = contact.id
+        AND newsl.category  = 23 AND newsl.type  IN (3,6)
       WHERE contact.id = {$contact_id}");
     $last_opt_out->fetch();
 
-    Civi::log()->debug(json_encode($last_opt_in));
-    Civi::log()->debug(json_encode($last_opt_out));
+    Civi::log()->debug((string) json_encode($last_opt_in));
+    Civi::log()->debug((string) json_encode($last_opt_out));
 
     $contact_update = ['id' => $contact_id];
     foreach (self::$fields as $query_field => $contact_field) {
-      if (  empty($last_opt_in->$query_field)     /* no opt-in */
+      if (empty($last_opt_in->$query_field)     /* no opt-in */
          || (!empty($last_opt_out->$query_field)  /* OR opt-out after opt-in */
                && $last_opt_in->$query_field < $last_opt_out->$query_field)) {
         $contact_update[$contact_field] = 1;
-      } else {
+      }
+      else {
         $contact_update[$contact_field] = 0;
       }
     }
 
     // run the update
-    Civi::log()->debug("Contact.update: " . json_encode($contact_update));
+    Civi::log()->debug('Contact.update: ' . json_encode($contact_update));
     civicrm_api3('Contact', 'create', $contact_update);
   }
+
 }

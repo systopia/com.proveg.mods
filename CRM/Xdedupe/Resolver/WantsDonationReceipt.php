@@ -24,17 +24,17 @@ class CRM_Xdedupe_Resolver_WantsDonationReceipt extends CRM_Xdedupe_Resolver_Sim
 
   // hard-coded values
   public static $option_values = [
-      1 => "keine Aussage",
-      2 => "möchte Spendenbescheinigung",
-      3 => "keine Spendenbescheinigung",
-      4 => "kein Spendenaufkommen"];
+    1 => 'keine Aussage',
+    2 => 'möchte Spendenbescheinigung',
+    3 => 'keine Spendenbescheinigung',
+    4 => 'kein Spendenaufkommen',
+  ];
 
   // hard-coded priority
   public static $option_priority = [2, 3, 4, 1, ''];
 
   public function __construct($merge) {
     parent::__construct($merge, 'custom_1');
-    //parent::__construct($merge, 'custom_37');
   }
 
   /**
@@ -42,7 +42,7 @@ class CRM_Xdedupe_Resolver_WantsDonationReceipt extends CRM_Xdedupe_Resolver_Sim
    * @return string name
    */
   public function getName() {
-    return E::ts("Donation Receipt?");
+    return E::ts('Donation Receipt?');
   }
 
   /**
@@ -57,9 +57,8 @@ class CRM_Xdedupe_Resolver_WantsDonationReceipt extends CRM_Xdedupe_Resolver_Sim
    * Get a human-readable attribute name
    */
   public function getAttributeName() {
-    return "Donation Receipt?";
+    return 'Donation Receipt?';
   }
-
 
   /**
    * Resolve the merge conflicts by editing the contact
@@ -92,8 +91,10 @@ class CRM_Xdedupe_Resolver_WantsDonationReceipt extends CRM_Xdedupe_Resolver_Sim
       // this is one of ours
       $priority = array_search($value, self::$option_priority);
       return 100 - $priority;
-    } else {
+    }
+    else {
       return 0;
     }
   }
+
 }

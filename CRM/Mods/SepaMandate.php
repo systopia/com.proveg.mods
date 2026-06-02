@@ -19,19 +19,32 @@ use CRM_Mods_ExtensionUtil as E;
  */
 class CRM_Mods_SepaMandate {
 
-  /** list of German holidays with a fixed date */
-  protected static $STATIC_HOLIDAYS = array('01-01', '05-01', '10-03', '12-25', '12-26', '12-31');
+  /**
+   * list of German holidays with a fixed date */
+  protected static $STATIC_HOLIDAYS = ['01-01', '05-01', '10-03', '12-25', '12-26', '12-31'];
 
-  /** list of Easter Sunday dates */
-  protected static $EASTER_SUNDAYS = array('2018-04-01', '2019-04-21', '2020-04-12', '2021-04-04', '2022-04-14', '2023-04-09', '2024-03-31', '2025-04-20', '2026-04-05', '2027-03-28');
+  /**
+   * list of Easter Sunday dates */
+  protected static $EASTER_SUNDAYS = [
+    '2018-04-01',
+    '2019-04-21',
+    '2020-04-12',
+    '2021-04-04',
+    '2022-04-14',
+    '2023-04-09',
+    '2024-03-31',
+    '2025-04-20',
+    '2026-04-05',
+    '2027-03-28',
+  ];
 
-  /** there are 4 easter related days: -2 (Good Friday), +1 (Easter Monday), +39 (Ascension Day), +50 (Whit Monday) */
-  protected static $EASTER_HOLIDAYS = array('-2', '+1', '+39', '+50');
+  /**
+   * there are 4 easter related days: -2 (Good Friday), +1 (Easter Monday), +39 (Ascension Day), +50 (Whit Monday) */
+  protected static $EASTER_HOLIDAYS = ['-2', '+1', '+39', '+50'];
 
-  /** cach for financial types */
+  /**
+   * cach for financial types */
   protected static $FINANCIAL_TYPE_NAMES = NULL;
-
-
 
   /**
    * Check if this a valid day to collect SEPA direct debits
@@ -46,7 +59,7 @@ class CRM_Mods_SepaMandate {
       return FALSE;
     }
 
-    // check for (German) static holidays
+    // German static holidays.
     $date = substr($collection_date, 5);
     if (in_array($date, self::$STATIC_HOLIDAYS)) {
       return FALSE;
@@ -71,8 +84,13 @@ class CRM_Mods_SepaMandate {
           return FALSE;
         }
       }
-    } else {
-      CRM_Core_Session::setStatus(E::ts("Easter sunday not known for year %1. Please contact SYSTOPIA.", [1 => $year]), E::ts('Bank holiday list outdated'), 'warning');
+    }
+    else {
+      CRM_Core_Session::setStatus(
+        E::ts('Easter sunday not known for year %1. Please contact SYSTOPIA.', [1 => $year]),
+        E::ts('Bank holiday list outdated'),
+        'warning'
+      );
     }
 
     // it all checks out, we can collect on this date
@@ -88,23 +106,31 @@ class CRM_Mods_SepaMandate {
   public static function generateTxMessage($mandate, $creditor) {
     if ($mandate['type'] == 'RCUR') {
       // load recurring contribution
-      $rcontribution = civicrm_api3('ContributionRecur', 'getsingle', array(
-          'id'     => $mandate['entity_id'],
-          'return' => 'financial_type_id,frequency_interval,frequency_unit'));
+      $rcontribution = civicrm_api3('ContributionRecur', 'getsingle', [
+        'id'     => $mandate['entity_id'],
+        'return' => 'financial_type_id,frequency_interval,frequency_unit',
+      ]);
       $financial_type = self::getFinancialTypeLabel($rcontribution['financial_type_id']);
-      $payment_frequency = CRM_Utils_SepaOptionGroupTools::getFrequencyText($rcontribution['frequency_interval'], $rcontribution['frequency_unit'], true);
-      $payment_frequency = preg_replace('/ä/', 'ae', $payment_frequency); // replace Umlaut in 'jährlich'
+      $payment_frequency = CRM_Utils_SepaOptionGroupTools::getFrequencyText(
+        $rcontribution['frequency_interval'],
+        $rcontribution['frequency_unit'],
+        TRUE
+      );
+      // replace Umlaut in 'jährlich'
+      $payment_frequency = preg_replace('/ä/', 'ae', $payment_frequency);
       return "{$financial_type} {$payment_frequency}. ProVeg sagt vielen Dank.";
 
-    } else {
+    }
+    else {
       // load contribution
-      $contribution = civicrm_api3('Contribution', 'getsingle', array(
-          'id'     => $mandate['contribution_id'],
-          'return' => 'financial_type_id'));
+      $contribution = civicrm_api3('Contribution', 'getsingle', [
+        'id'     => $mandate['contribution_id'],
+        'return' => 'financial_type_id',
+      ]);
       $financial_type = self::getFinancialTypeLabel($contribution['financial_type_id']);
       return "{$financial_type} - ProVeg sagt vielen Dank.";
     }
-    return "ProVeg sagt vielen Dank.";
+    return 'ProVeg sagt vielen Dank.';
   }
 
   /**
@@ -126,27 +152,31 @@ class CRM_Mods_SepaMandate {
     $contact_id = $mandate_parameters['contact_id'];
 
     // load contribution (not needed at this point
-    if ($mandate_parameters['entity_table']=='civicrm_contribution') {
-      $contribution = civicrm_api3('Contribution', 'getsingle', array(
-          'id'     => $mandate_parameters['entity_id'],
-          'return' => 'financial_type_id'));
-    } else if ($mandate_parameters['entity_table']=='civicrm_contribution_recur') {
-      $contribution = civicrm_api3('ContributionRecur', 'getsingle', array(
-          'id'     => $mandate_parameters['entity_id'],
-          'return' => 'financial_type_id'));
-    } else {
-      throw new Exception("Unsupported mandate type!");
+    if ($mandate_parameters['entity_table'] == 'civicrm_contribution') {
+      $contribution = civicrm_api3('Contribution', 'getsingle', [
+        'id'     => $mandate_parameters['entity_id'],
+        'return' => 'financial_type_id',
+      ]);
+    }
+    elseif ($mandate_parameters['entity_table'] == 'civicrm_contribution_recur') {
+      $contribution = civicrm_api3('ContributionRecur', 'getsingle', [
+        'id'     => $mandate_parameters['entity_id'],
+        'return' => 'financial_type_id',
+      ]);
+    }
+    else {
+      throw new Exception('Unsupported mandate type!');
     }
 
     // if this is a membership payment (Membership Due or Abo) - find the membership number
     $reference = NULL;
     if ($contribution['financial_type_id'] == 8 || $contribution['financial_type_id'] == 2) {
       if (class_exists('CRM_Membership_NumberLogic')) {
-        $membership_numbers = CRM_Membership_NumberLogic::getCurrentMembershipNumbers(array($contact_id));
+        $membership_numbers = CRM_Membership_NumberLogic::getCurrentMembershipNumbers([$contact_id]);
         $reference = CRM_Utils_Array::value($contact_id, $membership_numbers, NULL);
         if ($reference) {
           $reference = trim($reference);
-          if (!preg_match("#^([A-Z])?[0-9]{2,7}(-[0-9]{2})?$#", $reference)) {
+          if (!preg_match('#^([A-Z])?[0-9]{2,7}(-[0-9]{2})?$#', $reference)) {
             // reference does not comply with the membership number pattern,
             //  probably a TxMxxxx number, that we don't want to use (see PV-8323)
             $reference = NULL;
@@ -162,7 +192,9 @@ class CRM_Mods_SepaMandate {
 
     // find all used references with that prefix
     $highest_index = 0;
-    $query = CRM_Core_DAO::executeQuery("SELECT reference FROM civicrm_sdd_mandate WHERE reference LIKE '{$reference}-%';");
+    $query = CRM_Core_DAO::executeQuery(
+      "SELECT reference FROM civicrm_sdd_mandate WHERE reference LIKE '{$reference}-%';"
+    );
     while ($query->fetch()) {
       if (preg_match("#^{$reference}-(?P<index>[0-9]{2,3})$#", $query->reference, $match)) {
         $index = (int) $match['index'];
@@ -171,7 +203,7 @@ class CRM_Mods_SepaMandate {
         }
       }
     }
-    $mandate_parameters['reference'] = sprintf("%s-%02d", $reference, ($highest_index + 1));
+    $mandate_parameters['reference'] = sprintf('%s-%02d', $reference, ($highest_index + 1));
   }
 
   /**
@@ -181,15 +213,17 @@ class CRM_Mods_SepaMandate {
    */
   protected static function getFinancialTypeLabel($financial_type_id) {
     if (self::$FINANCIAL_TYPE_NAMES === NULL) {
-      $ft_query = civicrm_api3('FinancialType', 'get', array(
-          'option.limit' => 0,
-          'return'       => 'id,name',
-          'sequential'   => 0));
+      $ft_query = civicrm_api3('FinancialType', 'get', [
+        'option.limit' => 0,
+        'return'       => 'id,name',
+        'sequential'   => 0,
+      ]);
       self::$FINANCIAL_TYPE_NAMES = $ft_query['values'];
     }
     if (isset(self::$FINANCIAL_TYPE_NAMES[$financial_type_id]['name'])) {
       return self::$FINANCIAL_TYPE_NAMES[$financial_type_id]['name'];
-    } else {
+    }
+    else {
       // this shouldn't happen
       return 'Unknown';
     }

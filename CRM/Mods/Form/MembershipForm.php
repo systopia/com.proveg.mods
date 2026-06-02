@@ -21,7 +21,7 @@ use CRM_Mods_ExtensionUtil as E;
  *  - crete and link SEPA mandate
  */
 class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
-  const MEMBERSHIP_FORM_SOURCE = 'Paper Form';
+  public const MEMBERSHIP_FORM_SOURCE = 'Paper Form';
 
   public function buildQuickForm() {
 
@@ -172,7 +172,7 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
         'select',
         'frequency_interval',
         E::ts('Frequency'),
-        [1 => E::ts("monthly"), 3 => E::ts("quarterly"), 6 => E::ts("semi-annually"), 12 => E::ts("annually")],
+        [1 => E::ts('monthly'), 3 => E::ts('quarterly'), 6 => E::ts('semi-annually'), 12 => E::ts('annually')],
         TRUE
     );
     $this->add(
@@ -190,7 +190,6 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
         FALSE
     );
 
-
     // set last-used defaults:
     $defaults = Civi::settings()->get('proveg_membership_paperform_defaults');
     if (is_array($defaults)) {
@@ -200,17 +199,17 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     // set prefix default 'Frau'
     $this->setDefaults(
       [
-          'prefix_id'          => 5,
-          'preferred_language' => 'de_DE'
+        'prefix_id'          => 5,
+        'preferred_language' => 'de_DE',
       ]
     );
 
-      // add button
+    // add button
     $this->addButtons([
         [
-            'type'      => 'submit',
-            'name'      => E::ts('Create'),
-            'isDefault' => TRUE,
+          'type'      => 'submit',
+          'name'      => E::ts('Create'),
+          'isDefault' => TRUE,
         ],
     ]);
 
@@ -219,19 +218,20 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     parent::buildQuickForm();
   }
 
-
   public function validate() {
     // validate IBAN
     $iban_error = CRM_Sepa_Logic_Verification::verifyIBAN($this->_submitValues['iban']);
     if ($iban_error) {
       $this->_errors['iban'] = $iban_error;
-    } else {
+    }
+    else {
       // all good -> look up bic
       if (empty($this->_submitValues['bic'])) {
         $lookup = civicrm_api3('Bic', 'findbyiban', ['iban' => $this->_submitValues['iban']]);
         if (empty($lookup['bic'])) {
-          $this->_errors['bic'] = E::ts("BIC is required");
-        } else {
+          $this->_errors['bic'] = E::ts('BIC is required');
+        }
+        else {
           $this->_submitValues['bic'] = $lookup['bic'];
         }
       }
@@ -240,7 +240,7 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     // validate amount
     $amount = (float) $this->_submitValues['amount'];
     if (!$amount) {
-      $this->_errors['amount'] = E::ts("Please enter a valid amount");
+      $this->_errors['amount'] = E::ts('Please enter a valid amount');
     }
 
     parent::validate();
@@ -252,18 +252,22 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
 
     // store new defaults
     Civi::settings()->set('proveg_membership_paperform_defaults', [
-        'join_date'          => $values['join_date'],
-        'campaign_id'        => $values['campaign_id'],
-        'membership_type_id' => $values['membership_type_id'],
-        'fee_type'           => $values['fee_type'],
-        'country_id'         => $values['country_id'],
+      'join_date'          => $values['join_date'],
+      'campaign_id'        => $values['campaign_id'],
+      'membership_type_id' => $values['membership_type_id'],
+      'fee_type'           => $values['fee_type'],
+      'country_id'         => $values['country_id'],
     ]);
 
     // create contact
     $contact_data = [
-        'contact_type' => 'Individual'
+      'contact_type' => 'Individual',
     ];
-    foreach (['prefix_id', 'first_name', 'last_name', 'birth_date', 'email', 'gender_id', 'preferred_language'] as $attribute) {
+    $contact_attributes = [
+      'prefix_id', 'first_name', 'last_name', 'birth_date',
+      'email', 'gender_id', 'preferred_language',
+    ];
+    foreach ($contact_attributes as $attribute) {
       $contact_data[$attribute] = $values[$attribute];
     }
     // call api
@@ -272,19 +276,18 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     // add phone
     if (!empty($values['phone'])) {
       $phone_data = [
-          'location_type_id' => 1,
-          'contact_id'       => $contact['id'],
-          'phone_type_id'    => 1,
-          'phone'            => $values['phone']
+        'location_type_id' => 1,
+        'contact_id'       => $contact['id'],
+        'phone_type_id'    => 1,
+        'phone'            => $values['phone'],
       ];
       $phone = civicrm_api3('Phone', 'create', $phone_data);
     }
 
-
     // create address
     $address_data = [
-        'location_type_id' => 1,
-        'contact_id'       => $contact['id'],
+      'location_type_id' => 1,
+      'contact_id'       => $contact['id'],
     ];
     foreach (['street_address', 'supplemental_address_1', 'postal_code', 'city', 'country_id'] as $attribute) {
       $address_data[$attribute] = $values[$attribute];
@@ -293,21 +296,27 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
 
     // add contract file
     if (empty($_FILES['contract_file']['name']) || empty($_FILES['contract_file']['tmp_name'])) {
-        CRM_Core_Session::setStatus(E::ts("No contract file submitted!"), E::ts("Contract Scan Missing"), 'warning');
-    } else {
+      CRM_Core_Session::setStatus(E::ts('No contract file submitted!'), E::ts('Contract Scan Missing'), 'warning');
+    }
+    else {
       try {
         // create contract activity with attachment
         $activity = civicrm_api3('Activity', 'create', [
-            'activity_type_id'        => 'Contract',
-            'subject'                 => "Mitgliedsvertrag",
-            'activity_date_time'      => date('YmdHis'),
-            'target_id'               => $contact['id'],
-            'status_id'               => 'Completed',
-            'source_contact_id'       =>  CRM_Core_Session::getLoggedInContactID(),
+          'activity_type_id'        => 'Contract',
+          'subject'                 => 'Mitgliedsvertrag',
+          'activity_date_time'      => date('YmdHis'),
+          'target_id'               => $contact['id'],
+          'status_id'               => 'Completed',
+          'source_contact_id'       => CRM_Core_Session::getLoggedInContactID(),
         ]);
         $this->attachFile($_FILES['contract_file'], $activity['id']);
-      } catch (Exception $ex) {
-        CRM_Core_Session::setStatus(E::ts("Couldn't create contract activity: %1", [1 => $ex->getMessage()]), E::ts("Activities Missing"), 'error');
+      }
+      catch (Exception $ex) {
+        CRM_Core_Session::setStatus(
+          E::ts("Couldn't create contract activity: %1", [1 => $ex->getMessage()]),
+          E::ts('Activities Missing'),
+          'error'
+        );
       }
     }
 
@@ -315,25 +324,33 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     try {
       if (!empty($values['campaign_id'])) {
         civicrm_api3('Activity', 'create', [
-            'activity_type_id'   => 'contact_source',
-            'subject'            => civicrm_api3('Campaign', 'getvalue', ['id' => $values['campaign_id'], 'return' => 'title']),
-            'activity_date_time' => date('YmdHis'),
-            'target_id'          => $contact['id'],
-            'campaign_id'        => $values['campaign_id'],
-            'status_id'          => 'Completed',
-            'source_contact_id'  => CRM_Core_Session::getLoggedInContactID(),
+          'activity_type_id'   => 'contact_source',
+          'subject'            => civicrm_api3('Campaign', 'getvalue', [
+            'id' => $values['campaign_id'],
+            'return' => 'title',
+          ]),
+          'activity_date_time' => date('YmdHis'),
+          'target_id'          => $contact['id'],
+          'campaign_id'        => $values['campaign_id'],
+          'status_id'          => 'Completed',
+          'source_contact_id'  => CRM_Core_Session::getLoggedInContactID(),
         ]);
       }
-    } catch (Exception $ex) {
-      CRM_Core_Session::setStatus(E::ts("Couldn't create source activity: %1", [1 => $ex->getMessage()]), E::ts("Activities Missing"), 'error');
+    }
+    catch (Exception $ex) {
+      CRM_Core_Session::setStatus(
+        E::ts("Couldn't create source activity: %1", [1 => $ex->getMessage()]),
+        E::ts('Activities Missing'),
+        'error'
+      );
     }
 
     // create membership
     $start_date = CRM_Mods_Memberships::calculateStartDate($values['join_date']);
     $membership_data = [
-        'contact_id' => $contact['id'],
-        'start_date' => $start_date,
-        'source'     => self::MEMBERSHIP_FORM_SOURCE,
+      'contact_id' => $contact['id'],
+      'start_date' => $start_date,
+      'source'     => self::MEMBERSHIP_FORM_SOURCE,
     ];
     foreach (['join_date', 'membership_type_id', 'campaign_id'] as $attribute) {
       $membership_data[$attribute] = $values[$attribute];
@@ -348,12 +365,12 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
 
     // create sepa mandate
     $mandate_data = [
-        'contact_id'        => $contact['id'],
-        'start_date'        => $start_date,
-        'type'              => 'RCUR',
-        'frequency_unit'    => 'month',
-        'financial_type_id' => 2,
-        'source'            => self::MEMBERSHIP_FORM_SOURCE,
+      'contact_id'        => $contact['id'],
+      'start_date'        => $start_date,
+      'type'              => 'RCUR',
+      'frequency_unit'    => 'month',
+      'financial_type_id' => 2,
+      'source'            => self::MEMBERSHIP_FORM_SOURCE,
     ];
     foreach (['iban', 'bic', 'frequency_interval', 'amount'] as $attribute) {
       $mandate_data[$attribute] = $values[$attribute];
@@ -366,9 +383,10 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
 
     // inform user
     CRM_Core_Session::setStatus(E::ts('Contact, mandate and membership created (<a href="%2">Contact [%1]</a>).', [
-        1 => $contact['id'],
-        2 => CRM_Utils_System::url('civicrm/contact/view', "reset=1&cid={$contact['id']}")]
-    ), E::ts("Success"), 'info');
+      1 => $contact['id'],
+      2 => CRM_Utils_System::url('civicrm/contact/view', "reset=1&cid={$contact['id']}"),
+    ]
+    ), E::ts('Success'), 'info');
 
     // move on...
     CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/member/paperform', 'reset=1'));
@@ -392,12 +410,14 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     unlink($upload['tmp_name']);
 
     // attach to the activity
-    $attachment = ['attachFile_1' => [
+    $attachment = [
+      'attachFile_1' => [
         'uri'         => $persistent_file_path,
         'location'    => $persistent_file_path,
         'upload_date' => date('YmdHis'),
         'type'        => $upload['type'],
-    ]];
+      ],
+    ];
     CRM_Core_BAO_File::processAttachment($attachment, 'civicrm_activity', $activity_id);
   }
 
@@ -411,7 +431,7 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     // auto-rendered in the loop -- such as "qfKey" and "buttons".  These
     // items don't have labels.  We'll identify renderable by filtering on
     // the 'label'.
-    $elementNames = array();
+    $elementNames = [];
     foreach ($this->_elements as $element) {
       /** @var HTML_QuickForm_Element $element */
       $label = $element->getLabel();
@@ -428,10 +448,10 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
   protected function getPrefixes() {
     $options = ['' => E::ts('no Prefix')];
     $query = civicrm_api3('OptionValue', 'get', [
-        'option_group_id' => 'individual_prefix',
-        'option.limit'    => 0,
-        'is_active'       => 1,
-        'return'          => 'value,label'
+      'option_group_id' => 'individual_prefix',
+      'option.limit'    => 0,
+      'is_active'       => 1,
+      'return'          => 'value,label',
     ]);
     foreach ($query['values'] as $option) {
       $options[$option['value']] = $option['label'];
@@ -439,25 +459,25 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     return $options;
   }
 
-    /**
-     * Get individual prefix options
-     */
-    protected function getFeeTypeOptions() {
-        $options = ['' => E::ts('keine Beitragsart')];
-        $query = civicrm_api3('OptionValue', 'get', [
-            'option_group_id' => 'fee_type',
-            'option.limit'    => 0,
-            'is_active'       => 1,
-            'return'          => 'value,label'
-        ]);
-        foreach ($query['values'] as $option) {
-            $options[$option['value']] = $option['label'];
-        }
-        // remove type 'Abonnement', see https://projekte.systopia.de/issues/12016#note-7
-        unset($options['4']);
-
-        return $options;
+  /**
+   * Get individual prefix options
+   */
+  protected function getFeeTypeOptions() {
+    $options = ['' => E::ts('keine Beitragsart')];
+    $query = civicrm_api3('OptionValue', 'get', [
+      'option_group_id' => 'fee_type',
+      'option.limit'    => 0,
+      'is_active'       => 1,
+      'return'          => 'value,label',
+    ]);
+    foreach ($query['values'] as $option) {
+      $options[$option['value']] = $option['label'];
     }
+    // remove type 'Abonnement', see https://projekte.systopia.de/issues/12016#note-7
+    unset($options['4']);
+
+    return $options;
+  }
 
   /**
    * Get individual prefix options
@@ -465,10 +485,10 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
   protected function getGenders() {
     $options = ['' => E::ts('-select-')];
     $query = civicrm_api3('OptionValue', 'get', [
-        'option_group_id' => 'gender',
-        'option.limit'    => 0,
-        'is_active'       => 1,
-        'return'          => 'value,label'
+      'option_group_id' => 'gender',
+      'option.limit'    => 0,
+      'is_active'       => 1,
+      'return'          => 'value,label',
     ]);
     foreach ($query['values'] as $option) {
       $options[$option['value']] = $option['label'];
@@ -476,22 +496,22 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
     return $options;
   }
 
-    /**
-     * Get individual prefix options
-     */
-    protected function getPreferredLanguages() {
-        $options = [];
-        $query = civicrm_api3('OptionValue', 'get', [
-            'option_group_id' => 'languages',
-            'option.limit'    => 0,
-            'is_active'       => 1,
-            'return'          => 'name,label'
-        ]);
-        foreach ($query['values'] as $option) {
-            $options[$option['name']] = $option['label'];
-        }
-        return $options;
+  /**
+   * Get individual prefix options
+   */
+  protected function getPreferredLanguages() {
+    $options = [];
+    $query = civicrm_api3('OptionValue', 'get', [
+      'option_group_id' => 'languages',
+      'option.limit'    => 0,
+      'is_active'       => 1,
+      'return'          => 'name,label',
+    ]);
+    foreach ($query['values'] as $option) {
+      $options[$option['name']] = $option['label'];
     }
+    return $options;
+  }
 
   /**
    * Get individual prefix options
@@ -499,8 +519,8 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
   protected function getCountries() {
     $options = [];
     $query = civicrm_api3('Country', 'get', [
-        'option.limit'    => 0,
-        'return'          => 'id,name'
+      'option.limit'    => 0,
+      'return'          => 'id,name',
     ]);
     foreach ($query['values'] as $option) {
       $options[$option['id']] = $option['name'];
@@ -514,8 +534,8 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
   protected function getMembershipTypes() {
     $options = [];
     $query = civicrm_api3('MembershipType', 'get', [
-        'option.limit'    => 0,
-        'return'          => 'id,name'
+      'option.limit'    => 0,
+      'return'          => 'id,name',
     ]);
     foreach ($query['values'] as $option) {
       $options[$option['id']] = $option['name'];
@@ -529,13 +549,14 @@ class CRM_Mods_Form_MembershipForm extends CRM_Core_Form {
   protected function getCampaigns() {
     $options = [];
     $query = civicrm_api3('Campaign', 'get', [
-        'option.limit' => 0,
-        'is_active'    => 1,
-        'return'       => 'id,title'
+      'option.limit' => 0,
+      'is_active'    => 1,
+      'return'       => 'id,title',
     ]);
     foreach ($query['values'] as $option) {
       $options[$option['id']] = $option['title'];
     }
     return $options;
   }
+
 }

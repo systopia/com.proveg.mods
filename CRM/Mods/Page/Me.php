@@ -12,4 +12,5 @@ class CRM_Mods_Page_Me extends CRM_Core_Page {
     CRM_Utils_System::redirect($link_to_my_contact);
     parent::run();
   }
+
 }

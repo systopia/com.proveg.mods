@@ -21,7 +21,7 @@ use CRM_Mods_ExtensionUtil as E;
  * @see PV-8843
  * @see https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_emailProcessorContact/
  */
-function mods_civicrm_emailProcessorContact( $email, $contactID, &$result ) {
+function mods_civicrm_emailProcessorContact($email, $contactID, &$result) {
   CRM_Mods_Emailprocessor::lookupContact($email, $contactID, $result);
 }
 
@@ -39,7 +39,7 @@ function mods_civicrm_create_mandate(&$mandate_parameters) {
  */
 function mods_civicrm_defer_collection_date(&$collection_date, $creditor_id) {
   while (!CRM_Mods_SepaMandate::is_collection_day($collection_date)) {
-    $collection_date = date('Y-m-d', strtotime("+1 day", strtotime($collection_date)));
+    $collection_date = date('Y-m-d', strtotime('+1 day', strtotime($collection_date)));
   }
 }
 
@@ -56,7 +56,7 @@ function mods_civicrm_searchTasks($objectType, &$tasks) {
     $tasks[] = [
       'title' => E::ts('Anonymise contributions'),
       'class' => 'CRM_Mods_Form_Task_ContributionAnonymiser',
-      'result' => false
+      'result' => FALSE,
     ];
   }
 }
@@ -117,7 +117,7 @@ function mods_civicrm_enable() {
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_navigationMenu
  */
 function mods_civicrm_navigationMenu(&$menu) {
-  _mods_civix_insert_navigation_menu($menu, '', array(
+  _mods_civix_insert_navigation_menu($menu, '', [
     'label' => E::ts('Me'),
     'name' => 'my_contact',
     'url' => '',
@@ -125,43 +125,43 @@ function mods_civicrm_navigationMenu(&$menu) {
     'permission' => 'access CiviCRM',
     'operator' => 'OR',
     'separator' => 0,
-  ));
-  _mods_civix_insert_navigation_menu($menu, 'my_contact', array(
-      'label' => E::ts('My Contact in CiviCRM'),
-      'name' => 'my_contact_civicrm',
-      'url' => 'civicrm/me',
-      'permission' => 'access CiviCRM',
-      'operator' => 'OR',
-      'separator' => 0,
-  ));
-  _mods_civix_insert_navigation_menu($menu, 'my_contact', array(
-      'label' => E::ts('My Contact in Drupal'),
-      'name' => 'my_contact_drupal',
-      'url' => 'user',
-      'permission' => 'access CiviCRM',
-      'operator' => 'OR',
-      'separator' => 0,
-  ));
+  ]);
+  _mods_civix_insert_navigation_menu($menu, 'my_contact', [
+    'label' => E::ts('My Contact in CiviCRM'),
+    'name' => 'my_contact_civicrm',
+    'url' => 'civicrm/me',
+    'permission' => 'access CiviCRM',
+    'operator' => 'OR',
+    'separator' => 0,
+  ]);
+  _mods_civix_insert_navigation_menu($menu, 'my_contact', [
+    'label' => E::ts('My Contact in Drupal'),
+    'name' => 'my_contact_drupal',
+    'url' => 'user',
+    'permission' => 'access CiviCRM',
+    'operator' => 'OR',
+    'separator' => 0,
+  ]);
   if (function_exists('statustracker_civicrm_config')) {
-    _mods_civix_insert_navigation_menu($menu, 'my_contact', array(
-        'label' => E::ts('My Processes'),
-        'name' => 'my_processes',
-        'url' => 'civicrm/statustracker/dashboard',
-        'permission' => 'access CiviCRM',
-        'operator' => 'OR',
-        'separator' => 0,
-    ));
+    _mods_civix_insert_navigation_menu($menu, 'my_contact', [
+      'label' => E::ts('My Processes'),
+      'name' => 'my_processes',
+      'url' => 'civicrm/statustracker/dashboard',
+      'permission' => 'access CiviCRM',
+      'operator' => 'OR',
+      'separator' => 0,
+    ]);
   }
 
   // add paper form link
-  _mods_civix_insert_navigation_menu($menu, 'Memberships', array(
-      'label' => E::ts('Paper Form'),
-      'name' => 'membership_paperform',
-      'url' => 'civicrm/member/paperform',
-      'permission' => 'edit memberships',
-      'operator' => 'OR',
-      'separator' => 0,
-  ));
+  _mods_civix_insert_navigation_menu($menu, 'Memberships', [
+    'label' => E::ts('Paper Form'),
+    'name' => 'membership_paperform',
+    'url' => 'civicrm/member/paperform',
+    'permission' => 'edit memberships',
+    'operator' => 'OR',
+    'separator' => 0,
+  ]);
 
   _mods_civix_navigationMenu($menu);
 }
@@ -190,6 +190,7 @@ function mods_civicrm_postProcess($formName, &$form) {
       $logger = new CRM_Mods_SubscriptionLogger();
       $logger->log_subscription($form);
       break;
+
     default:
       return;
   }
@@ -236,28 +237,32 @@ function mods_civicrm_post($op, $objectName, $objectId, &$objectRef) {
   if ($op == 'create' && $objectName == 'Membership') {
 
     // make sure we don't cause a recursion
-    static $disable_card_title_update = false;
-    if ($disable_card_title_update) return;
+    static $disable_card_title_update = FALSE;
+    if ($disable_card_title_update) {
+      return;
+    }
 
     // make sure the card title field is there
     $CUSTOM_FIELD_ID = CRM_Mods_CardTitle::getCardTitleFieldID();
-    if (!$CUSTOM_FIELD_ID) return;
+    if (!$CUSTOM_FIELD_ID) {
+      return;
+    }
     $title_field = "custom_{$CUSTOM_FIELD_ID}";
-
 
     // check if it's empty and
     try {
       $membership = civicrm_api3('Membership', 'getsingle', [
-          'id'     => $objectId,
-          'return' => "{$title_field},id,contact_id"
+        'id'     => $objectId,
+        'return' => "{$title_field},id,contact_id",
       ]);
 
       // if field is empty -> calculate new value
       if (empty($membership[$title_field])) {
-        $field_list = ['formal_title','first_name','last_name'];
+        $field_list = ['formal_title', 'first_name', 'last_name'];
         $contact = civicrm_api3('Contact', 'getsingle', [
-            'id'     => $membership['contact_id'],
-            'return' => implode(',', $field_list) . ',contact_type,display_name']);
+          'id'     => $membership['contact_id'],
+          'return' => implode(',', $field_list) . ',contact_type,display_name',
+        ]);
         $pieces = [];
         if ($contact['contact_type'] == 'Individual') {
           foreach ($field_list as $field) {
@@ -265,20 +270,22 @@ function mods_civicrm_post($op, $objectName, $objectId, &$objectRef) {
               $pieces[] = $contact[$field];
             }
           }
-        } else {
+        }
+        else {
           $pieces[] = $contact['display_name'];
         }
 
         // set new title
-        $disable_card_title_update = true;
+        $disable_card_title_update = TRUE;
         civicrm_api3('Membership', 'create', [
-            'id'         => $objectId,
-            $title_field => trim(implode(' ', $pieces))
+          'id'         => $objectId,
+          $title_field => trim(implode(' ', $pieces)),
         ]);
       }
-    } catch (Exception $ex) {
+    }
+    catch (Exception $ex) {
       // something went wrong
-      Civi::log()->debug("mods: Error while setting ProVeg Card Title: " . $ex->getMessage());
+      Civi::log()->debug('mods: Error while setting ProVeg Card Title: ' . $ex->getMessage());
     }
   }
 }
