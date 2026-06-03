@@ -1,0 +1,288 @@
+#: CRM/Mods/CardTitle.php
+msgid "Don't forget to adjust the membership card title, if necessary."
+msgstr ""
+
+#: CRM/Mods/CardTitle.php
+msgid "Update Card Title?"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "Individual Prefix"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "First Name"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "Last Name"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "Gender"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "Birth Date"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "Preferred Language"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "Street Address"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "Supplemental Address"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "Postal Code"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "City"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "Country"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "Email"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "Phone"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "Member Since"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "Membership Type"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "Fee Type"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "Campaign"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "Contract Scan"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "Amount"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "Frequency"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "monthly"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "quarterly"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "semi-annually"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "annually"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "IBAN"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "BIC"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "Create"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "BIC is required"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "Please enter a valid amount"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "No contract file submitted!"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "Contract Scan Missing"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "Couldn't create contract activity: %1"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "Activities Missing"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "Couldn't create source activity: %1"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "Contact, mandate and membership created (<a href=\"%2\">Contact [%1]</a>)."
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "Success"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "no Prefix"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "keine Beitragsart"
+msgstr ""
+
+#: CRM/Mods/Form/MembershipForm.php
+msgid "-select-"
+msgstr ""
+
+#: CRM/Mods/Form/Search/MembershipNumber.php
+msgid "Membership Number Search"
+msgstr ""
+
+#: CRM/Mods/Form/Search/MembershipNumber.php
+msgid "Membership Number"
+msgstr ""
+
+#: CRM/Mods/Form/Search/MembershipNumber.php
+msgid "Name"
+msgstr ""
+
+#: CRM/Mods/Form/Search/MembershipNumber.php
+msgid "Membership Status"
+msgstr ""
+
+#: CRM/Mods/Form/Search/MembershipNumber.php
+msgid "Membership ID"
+msgstr ""
+
+#: CRM/Mods/Form/Search/MembershipNumber.php
+msgid "Contact Type"
+msgstr ""
+
+#: CRM/Mods/Form/Settings.php
+msgid "Activate Custom Subscription Logging"
+msgstr ""
+
+#: CRM/Mods/Form/Settings.php
+msgid "Submit"
+msgstr ""
+
+#: CRM/Mods/Form/Task/ContributionAnonymiser.php
+msgid "Anonymous contact"
+msgstr ""
+
+#: CRM/Mods/Memberships.php
+msgid "Custom field for annual membership fee not found"
+msgstr ""
+
+#: CRM/Mods/Memberships.php
+msgid "Custom Field Not Found"
+msgstr ""
+
+#: CRM/Mods/SepaMandate.php
+msgid "Easter sunday not known for year %1. Please contact SYSTOPIA."
+msgstr ""
+
+#: CRM/Mods/SepaMandate.php
+msgid "Bank holiday list outdated"
+msgstr ""
+
+#: CRM/Xdedupe/Picker/YoungestISL.php
+msgid "Youngest (by ISL ID)"
+msgstr ""
+
+#: CRM/Xdedupe/Picker/YoungestISL.php
+msgid "If all contacts have an ISL-XXXX external identifier, it picks the contact with the highest ID"
+msgstr ""
+
+#: CRM/Xdedupe/Resolver/WantsDonationReceipt.php
+msgid "Donation Receipt?"
+msgstr ""
+
+#: CRM/Xdedupe/Resolver/WantsDonationReceipt.php
+msgid "Resolves 'Donation Receipt?' field conflicts by preferring 'wants' over 'does not want'."
+msgstr ""
+
+#: mods.php
+msgid "Anonymise contributions"
+msgstr ""
+
+#: mods.php
+msgid "%1 is a required field."
+msgstr ""
+
+#: mods.php
+msgid "Me"
+msgstr ""
+
+#: mods.php
+msgid "My Contact in CiviCRM"
+msgstr ""
+
+#: mods.php
+msgid "My Contact in Drupal"
+msgstr ""
+
+#: mods.php
+msgid "My Processes"
+msgstr ""
+
+#: mods.php
+msgid "Paper Form"
+msgstr ""
+
+#: templates/CRM/Mods/Form/Settings.hlp
+msgid "This option activates a logging option for Double Opt-In Email Self Service. All users filling the form will be logged to '[civicrm-files]/ConfigAndLog/proVegCustomLogging.log' "
+msgstr ""
+
+#: templates/CRM/Mods/Form/Settings.hlp
+msgid "Logging Fields are for the form submit: email, group_id, hash. When the Subscription is confirmed, contact_id, hash and group_id is logged."
+msgstr ""
+
+#: templates/CRM/Mods/Form/Settings.tpl
+msgid "Proveg Custom Logging Configuration"
+msgstr ""
+
+#: templates/CRM/Mods/Form/Settings.tpl
+msgid "Activate Subscription Logging"
+msgstr ""
+
+#: templates/CRM/Mods/Form/Settings.tpl
+msgid "Help"
+msgstr ""
+
+#: templates/CRM/Mods/Form/Task/ContributionAnonymiser.tpl
+msgid "Contribution count:"
+msgstr ""
+
+#: templates/CRM/Mods/Form/Task/ContributionAnonymiser.tpl
+msgid "Recurring contribution count:"
+msgstr ""
+
